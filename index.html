@@ -455,7 +455,9 @@ h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.01em;line
 .docs-body p{margin:0 0 11px}
 .docs-body b{color:var(--text)}
 .docs-body em{color:var(--brand);font-style:italic}
-.docs-eq{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--brand);background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:10px 13px;text-align:center}
+.docs-eq{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--brand);background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:10px 13px;text-align:center;display:block;margin:10px 0;line-height:1.75}
+.docs p{line-height:1.85}
+span.docs-eq[style*="inline"]{display:inline !important;padding:1px 7px;font-size:12px;line-height:1.6;border-radius:4px;white-space:normal;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 .docs-list{margin:0 0 12px;padding-left:20px}
 .docs-list li{margin-bottom:6px}
 .docs-foot{font-size:12px;color:var(--faint);border-top:1px solid var(--line);margin-top:22px;padding-top:14px;line-height:1.55}
@@ -525,6 +527,19 @@ h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.01em;line
 .medaltier{font-family:'Fraunces',serif;font-size:15.5px;font-style:italic}
 .medalmeta{font-size:11.5px;color:var(--faint)}
 @media (max-width:560px){.ibmat{flex-direction:column;align-items:flex-start}}
+
+/* ===== v11 additions ===== */
+.obsconf{font-size:10px;color:var(--faint);margin-top:4px;letter-spacing:.02em}
+.lucktag{font-size:10.5px;color:var(--faint);font-style:italic;margin-left:6px}
+.chaintbl{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.ctr{display:grid;grid-template-columns:88px 1fr auto;gap:10px;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--line)}
+.ctr:last-of-type{border-bottom:none}
+.ctc{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+.ctq{font-size:12.5px;color:var(--muted)}
+.ctv{font-size:12.5px;color:var(--ink);white-space:nowrap}
+.ctnote{font-size:11px;color:var(--faint);margin-top:8px;line-height:1.5}
+.medalcap{flex-basis:100%;font-size:11.5px;color:var(--faint);line-height:1.55;margin-top:2px}
+@media (max-width:560px){.ctr{grid-template-columns:74px 1fr;}.ctv{grid-column:2;white-space:normal}}
 </style>
 </head>
 <body>
@@ -546,10 +561,11 @@ h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.01em;line
   </div>
   <div style="margin-top:8px;font-size:12px;color:var(--faint)" id="modeNote">Expert mode: the forecast pathology is not named — only operational clues. Trigger probabilities and figures are shown. Training mode instead names the pathology and shows qualitative bands.</div>
   <div class="introbtns">
-    <button class="cta" onclick="startGame(parseSeed())">Begin the T−120 h briefing →</button>
-    <button class="cta ghost" onclick="startDaily()">Daily storm ▸</button>
+    <button class="cta" onclick="startGame(parseSeed())">Random storm — begin the T−120 h briefing →</button>
+    <button class="cta ghost" onclick="startDaily()">Daily storm — today's shared seed ▸</button>
     <button class="cta ghost" onclick="openDocs()">Open the field manual ▸</button>
   </div>
+  <p style="font-size:12px;color:var(--faint);margin-top:10px;line-height:1.6"><b>Random storm</b> deals a fresh seed from the full climatology and takes you straight into the first briefing, five days out. <b>Daily storm</b> gives everyone the same seed for the day, so scores are comparable; it changes at midnight UTC.</p>
   <p class="footnote">Built on real doctrine: the WMO/UNDRR warning value chain and Early Warnings for All, impact-based forecasting (hazard × exposure × vulnerability), probabilistic cost–loss decision theory, the Common Alerting Protocol, the Protective Action Decision Model, and anticipatory action. Each storm is generated from a seed you can share and replay.</p>
 </section>
 
@@ -585,6 +601,8 @@ h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.01em;line
           <div id="synopsis"></div>
           <canvas class="plume" id="plume" width="560" height="190"></canvas>
           <div style="font-size:11px;color:var(--faint);text-align:center;margin-top:6px" class="mono">VALE CORRIDOR — River Aven peak level (m) · 50-member plume</div>
+          <canvas class="plume" id="plumeSurge" width="560" height="150"></canvas>
+          <div style="font-size:11px;color:var(--faint);text-align:center;margin-top:6px" class="mono">WESTSHORE — storm surge height (m) · 50-member spread on the next tides</div>
           <div class="clusters" id="clusters"></div>
           <div id="hazDrivers"></div>
           <div class="chains" id="chains"></div>
@@ -650,7 +668,7 @@ h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.01em;line
 
       <h3>3 · Reading the forecast</h3>
       <p><b>The ensemble.</b> Fifty members, each a plausible version of the storm. The spread <em>is</em> the uncertainty — it is not noise to be averaged away. Early on you should ask "what would hurt us?", not "what is most likely?".</p>
-      <p><b>The map is a clock.</b> The cyclone symbol is the low's <em>analysed position</em>, advancing toward Seloria each briefing; the solid line behind it is the observed track so far (a kinked observed track is itself a clue that the guidance has been jumping). Ahead of it, each faint line is one ensemble member's remaining track — a smooth path to its own landfall plus a correlated cross-track wobble that grows with forecast range, which is why the bundle reads as spaghetti rather than a family of tidy curves. The shaded <b>cone</b> is <em>derived from those members</em>: at every downstream station it spans the 10–90% spread of member positions across the mean track, so it is literally the presented probabilities made spatial — widening with lead time, narrowing as briefings pass, and physically shrinking as the low advances. The dashed line is the ensemble-mean track. When the members split into distinct track families the cone is drawn as separate dashed lobes: plan against more than one scenario, not the average of them. Crucially, the cone is the <em>possible path of the low centre, not the hazard area</em> — severe seas are fetch-driven and can devastate the North Isles while the centre tracks elsewhere, which is why regions also carry diagonal <b>hatching</b> scaled to the ensemble's chance of severe impacts there, with small ▲/▼ arrows on each impact line showing how the probabilities moved since the last briefing. Hatching is the threat; the colour fill is your decision. A heavily hatched region with no warning colour is the gap you are paid to notice. Click the storm symbol for the cluster split and whether confidence has narrowed since the last briefing.</p>
+      <p><b>The map is a clock.</b> The cyclone symbol is the low's <em>analysed position</em>, advancing toward Seloria each briefing; the solid line behind it is the observed track so far (a kinked observed track is itself a clue that the guidance has been jumping). Ahead of it, each faint line is one ensemble member's remaining track: a smooth path to its own destination plus a correlated cross-track wobble that grows with forecast range, which is why the bundle reads as spaghetti rather than a family of tidy curves. Genuinely offshore members run north parallel to the coast and exit at sea; only tracks past the cluster boundary actually cross the coastline. The shaded <b>cone</b> is <em>derived from those members</em>: at every downstream station it spans the 10–90% spread of member positions across the mean track, so it is literally the presented probabilities made spatial — widening with lead time, narrowing as briefings pass, and physically shrinking as the low advances. The dashed line is the ensemble-mean track. When the members split into distinct track families the cone is drawn as separate dashed lobes: plan against more than one scenario, not the average of them. Crucially, the cone is the <em>possible path of the low centre, not the hazard area</em> — severe seas are fetch-driven and can devastate the North Isles while the centre tracks elsewhere, which is why regions also carry diagonal <b>hatching</b> scaled to the ensemble's chance of severe impacts there, with small ▲/▼ arrows on each impact line showing how the probabilities moved since the last briefing. Hatching is the threat; the colour fill is your decision. A heavily hatched region with no warning colour is the gap you are paid to notice. Click the storm symbol for the cluster split and whether confidence has narrowed since the last briefing.</p>
       <p><b>The river plume</b> shows the 50-member spread of Vale river levels rising toward impact, with the current observed level on the left climbing as the event approaches.</p>
       <p><b>Confidence</b> reflects track spread. It usually rises as impact nears — but not always (see pathologies).</p>
       <p><b>Forecast pathologies.</b> The guidance is sometimes badly behaved: a jumpy track, an under-dispersive ensemble that looks more confident than it should, a model with a known mountain wet bias, under-resolved convection, or an observation outage where confidence <em>falls</em> near impact. Training mode names the pathology; Expert mode gives only the operational clue.</p>
@@ -665,8 +683,8 @@ h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.01em;line
         <li><b>Greyspine flash flood</b> — orographic convection, fast water in steep valleys, very short lead time.</li>
         <li><b>North Isles isolation</b> — severe seas stop the ferries; island power and telecom fail.</li>
         <li><b>Compound event</b> — two or more regions reach severe impact at once. Your budget will not stretch to everything.</li>
-        <li><b>Phantom threat</b> — the guidance locks onto a coastal monster for the first three briefings, then collapses. The whole event is false-alarm management: hedge proportionately, then de-escalate visibly and with reasons.</li>
-        <li><b>Black-swan compound</b> — a once-in-a-century hit on several regions at once. It <em>deliberately exceeds the resources available</em>: the test is triage, not coverage, and the debrief judges prioritisation rather than the bases you could never have covered.</li>
+        <li><b>Phantom threat</b>: the guidance locks onto a coastal monster for the first three briefings, then collapses. The whole event is false-alarm management: hedge proportionately, then de-escalate visibly and with reasons.</li>
+        <li><b>Black-swan compound</b>: a once-in-a-century hit on several regions at once. It <em>deliberately exceeds the resources available</em>: the test is triage, not coverage, and the debrief judges prioritisation rather than the bases you could never have covered.</li>
       </ul>
       <p>Crucially, <b>some storms are meant to be boring</b>. Some miss. Some are mainly disruption. Some look frightening and verify weakly. That is the point: over-warning has a real cost, so a calm, well-targeted response to a near-miss is a <em>good</em> decision, not a timid one.</p>
 
@@ -705,24 +723,24 @@ h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;letter-spacing:-.01em;line
 
       <h3>10 · The mathematics under the hood</h3>
       <p>Nothing in the engine is hand-waved; every number you see is computed from a small set of hidden physical latents. If you want to play it as a calibration exercise, this is the machinery.</p>
-      <p><b>The storm.</b> Each seed first draws a <em>regime</em> (the archetype list above, with fixed climatological frequencies), then samples six latents inside it: <span class="docs-eq" style="display:inline">track, intensity, soil saturation, tide phase, convective fraction, onshore-flow strength</span>. Regional hazard drivers are smooth functions of these — mostly Gaussian "peak" responses such as <span class="docs-eq" style="display:inline">gust ∝ intensity × exp(−(track−0.40)²/2w²)</span>, so damaging wind needs a genuinely coastal track, orographic flash rain needs a deep inland one, and island seas need strong onshore flow with an offshore-leaning track. Severity per region is the maximum of its drivers.</p>
+      <p><b>The storm.</b> Each seed first draws a <em>regime</em> (the archetype list above, with fixed climatological frequencies), then samples six latents inside it: <span class="docs-eq" style="display:inline">track, intensity, soil saturation, tide phase, convective fraction, onshore-flow strength</span>. Regional hazard drivers are smooth functions of these, mostly Gaussian "peak" responses such as <span class="docs-eq" style="display:inline">gust ∝ intensity × exp(−(track−0.40)²/2w²)</span>, so damaging wind needs a genuinely coastal track, orographic flash rain needs a deep inland one, and island seas need strong onshore flow with an offshore-leaning track. Severity per region is the maximum of its drivers.</p>
       <p><b>The ensemble.</b> Each of the 50 members is <span class="docs-eq" style="display:inline">truth + bias(pathology, briefing) + noise(briefing)</span>, with noise shrinking from σ≈0.42 at T−120 to 0.03 at T−6. Every probability on the desk is a simple member count: P(impact) = fraction of members whose driver exceeds that impact's threshold. There is no second model — the map cone, the hatching, the trigger probabilities and the river plume are all the same 50 members, presented differently.</p>
       <p><b>The decision standard.</b> Actions are graded by probabilistic cost–loss logic: act when expected avoided loss exceeds cost, i.e. when the trigger probability p > C/L. The debrief replays each decision with the marginal expected value it had <em>at the time</em> — marginal, because benefits exhibit diminishing returns once a risk is already covered — and |EV| ≤ £3m is treated as a defensible judgement call either way.</p>
       <p><b>The response model.</b> A warning's per-briefing effect on one region is
       <span class="docs-eq">response = base(colour) × trust × lead(phase) × reach(channels) × (0.35 + 0.65·clarity) × feasibility × (1 − 0.3·fatigue)</span>
-      and responses accumulate across briefings as <span class="docs-eq" style="display:inline">acted = 1 − ∏(1 − responseᵢ)</span> — an early warning keeps paying even if later refined. Reach is channel-weighted (cell broadcast strongest, and it fails to the isles if the telecom mast is lost); clarity rewards concrete actions, named groups and honest certainty; feasibility collapses if you tell mobility-constrained groups to leave with nothing in place.</p>
-      <p><b>Burden and attention.</b> Holding warnings costs <span class="docs-eq" style="display:inline">burden ∝ population warned × colour × BURDEN(phase)</span>, where BURDEN rises from 0.30 at T−120 to 1.0 near impact — disruption bites near landfall — while the attention/credibility cost decays much more slowly (0.55 → 1.0), which is exactly why "early Red just in case" is not free.</p>
-      <p><b>Readiness.</b> Each life-safety mission is a <em>weighted harmonic mean</em> of its agencies' readiness — a weakest-link aggregate, so one unprepared agency caps the whole mission no matter how ready the rest are. Life-saving response is then capped at 0.4 + 0.6 × mission readiness.</p>
-      <p><b>Verification.</b> The guidance itself is scored with Brier scores on the headline impacts — mean squared error of each briefing's probability against the 0/1 outcome — and your tail exposure is reported as CVaR: the mean loss of the worst 10% of ensemble outcomes under your final posture.</p>
+      and responses accumulate across briefings as <span class="docs-eq" style="display:inline">acted = 1 − ∏(1 − responseᵢ)</span>, so an early warning keeps paying even if later refined. Reach is channel-weighted (cell broadcast strongest, and it fails to the isles if the telecom mast is lost) and is now also <b>group-specific</b>: naming an audience whose channels you have not selected discounts reach, and the composer flags the gap (elderly residents listen to local radio and community leaders, tourists get cell broadcast, fishers follow the harbour channels). Clarity rewards concrete actions, named groups and honest certainty; feasibility collapses if you tell mobility-constrained groups to leave with nothing in place.</p>
+      <p><b>Burden and attention.</b> Holding warnings costs <span class="docs-eq" style="display:inline">burden ∝ population warned × colour × BURDEN(phase)</span>, where BURDEN rises from 0.30 at T−120 to 1.0 near impact (disruption bites near landfall), while the attention/credibility cost decays much more slowly (0.55 → 1.0). A region-wide Red in the first two briefings now also carries an extra credibility charge, which is exactly why "early Red just in case" is not free.</p>
+      <p><b>Readiness.</b> Each life-safety mission is a <em>weighted harmonic mean</em> of its agencies' readiness: a weakest-link aggregate, so one unprepared agency caps the whole mission no matter how ready the rest are. Life-saving response is then capped at 0.4 + 0.6 × mission readiness.</p>
+      <p><b>Verification.</b> The guidance itself is scored with Brier scores on the headline impacts (mean squared error of each briefing's probability against the 0/1 outcome), and your tail exposure is reported as CVaR: the mean loss of the worst 10% of ensemble outcomes under your final posture. The debrief also applies a <b>regret frame</b> to each pivotal call, pairing the decision (judged on what was knowable) with how the hazard verified, so a good decision with a bad outcome is named as bad luck and a negative-EV commitment that never met a hazard is named as a lucky escape. Black-swan runs report a <b>triage score</b> weighted toward the response chain, because covering every base in those events is impossible by design. From T−24 the observation desk arrives with stated confidence and siting caveats (rating curves above flood stage, radar beam blockage, a single tide gauge for a whole coast): observations are evidence, never an oracle. The forecast-diagnosis card carries a second hydrograph alongside the River Aven plume, the Westshore surge-height plume, built from the same 50 members.</p>
 
       <h3>11 · The theory this game is built on</h3>
-      <p><b>Early Warnings for All.</b> The WMO/UNDRR framework defines four pillars — risk knowledge, monitoring &amp; forecasting, dissemination &amp; communication, and preparedness to respond — and its central finding is that warnings fail at the weakest pillar, almost never at the forecast alone. The game's value chain (reach × clarity × belief × feasibility × readiness) is that doctrine made mechanical.</p>
+      <p><b>Early Warnings for All.</b> The WMO/UNDRR framework defines four pillars (risk knowledge, monitoring &amp; forecasting, dissemination &amp; communication, and preparedness to respond), and its central finding is that warnings fail at the weakest pillar, almost never at the forecast alone. The game's value chain (reach × clarity × belief × feasibility × readiness) is that doctrine made mechanical.</p>
       <p><b>Impact-based forecasting.</b> Modern services warn for <em>what the weather will do</em>, not what it will be: risk = hazard × exposure × vulnerability, summarised in the likelihood-by-impact matrix you now see in the warning composer. The matrix frames the call — a low-likelihood/severe-impact cell is legitimately Amber — but it never makes it.</p>
       <p><b>Cost–loss decision theory.</b> For a protective action costing C that prevents loss L, the rational threshold is p* = C/L: cheap actions against large losses justify acting at low probabilities (pre-positioning pumps), while costly disruption (evacuation, rail closure) demands higher confidence or a tighter target. Almost every "when should I commit?" tension on the desk reduces to this ratio plus lead-time decay.</p>
-      <p><b>The cry-wolf effect, with nuance.</b> Repeated false alarms do erode response — but the research consistently shows the erosion is driven by <em>unexplained</em> or <em>poorly targeted</em> alarms, not by false alarms per se. A near-miss managed with targeted warnings, honest uncertainty and a reasoned public de-escalation can leave trust intact. Hence the downgrade-reason mechanic, and hence the Phantom-threat regime, where the entire skill is the walk-down.</p>
-      <p><b>Anticipatory action.</b> Acting on a forecast, before impact, is systematically cheaper per life and per pound than response after — but only inside the lead-time window, which is why action effectiveness decays with the phase you commit in, and why "lead time left on the table" is called out in the debrief.</p>
-      <p><b>Protective Action Decision Model &amp; CAP.</b> People act when a message reaches them, they understand it, believe it, and can act on it — four separately breakable links. Warnings are composed in Common Alerting Protocol style (certainty / urgency / severity / instruction / audience / channel) because that structure is what real dissemination systems consume.</p>
-      <p><b>The good miss.</b> Verification practice distinguishes a forecast bust from a <em>good decision with an unlucky outcome</em>. You are graded on the expected value of each call given the probabilities in front of you — a defensible Red that verifies quiet, walked down with reasons, scores better than a lucky silence.</p>
+      <p><b>The cry-wolf effect, with nuance.</b> Repeated false alarms do erode response, but the research consistently shows the erosion is driven by <em>unexplained</em> or <em>poorly targeted</em> alarms rather than by false alarms per se. A near-miss managed with targeted warnings, honest uncertainty and a reasoned public de-escalation can leave trust intact. Hence the downgrade-reason mechanic, and hence the Phantom-threat regime, where the entire skill is the walk-down.</p>
+      <p><b>Anticipatory action.</b> Acting on a forecast, before impact, is systematically cheaper per life and per pound than response after, but only inside the lead-time window, which is why action effectiveness decays with the phase you commit in, and why "lead time left on the table" is called out in the debrief.</p>
+      <p><b>Protective Action Decision Model &amp; CAP.</b> People act when a message reaches them, they understand it, believe it, and can act on it: four separately breakable links. Warnings are composed in Common Alerting Protocol style (certainty / urgency / severity / instruction / audience / channel) because that structure is what real dissemination systems consume.</p>
+      <p><b>The good miss.</b> Verification practice distinguishes a forecast bust from a <em>good decision with an unlucky outcome</em>. You are graded on the expected value of each call given the probabilities in front of you. A defensible Red that verifies quiet, walked down with reasons, scores better than a lucky silence.</p>
 
       <div class="docs-foot">Built on real doctrine: the WMO/UNDRR warning value chain and Early Warnings for All, impact-based forecasting (hazard × exposure × vulnerability), probabilistic cost–loss decision theory, the Common Alerting Protocol, the Protective Action Decision Model, and anticipatory action.</div>
       <div style="text-align:center;margin-top:18px"><button class="cta" onclick="closeDocs()">Close ▸</button></div>
@@ -797,10 +815,10 @@ const RMAP={};REGIONS.forEach(r=>RMAP[r.id]=r);
 const PHASES=[
  {t:'T−120h',name:'Outlook phase',sub:'Briefing 1 of 6',noise:.42,lead:120,stance:'Broad scenarios and tails. The question is "what would hurt us?", not "what is most likely?".'},
  {t:'T−96h', name:'Scenario phase',sub:'Briefing 2 of 6',noise:.33,lead:96,stance:'Clusters are separating. Watch which way the track tail leans before committing.'},
- {t:'T−72h', name:'Commitment phase',sub:'Briefing 3 of 6',noise:.22,lead:72,stance:'Consistency improving — the window for anticipatory action with full lead time.'},
+ {t:'T−72h', name:'Commitment phase',sub:'Briefing 3 of 6',noise:.22,lead:72,stance:'Consistency improving. The window for anticipatory action with full lead time is open, and closing.'},
  {t:'T−48h', name:'Public warning',sub:'Briefing 4 of 6',noise:.13,lead:48,stance:'Uncertainty narrowing. Public messaging and message clarity become central.'},
  {t:'T−24h', name:'Action phase',sub:'Briefing 5 of 6',noise:.07,lead:24,stance:'Observations arriving. Action feasibility now matters more than the colour.'},
- {t:'T−6h',  name:'Nowcast phase',sub:'Briefing 6 of 6',noise:.03,lead:6,stance:'Nowcast and corrections. Avoid reactive churn — what you see is close to what you get.'},
+ {t:'T−6h',  name:'Nowcast phase',sub:'Briefing 6 of 6',noise:.03,lead:6,stance:'Nowcast and corrections. Avoid reactive churn; what you see is close to what you get.'},
 ];
 const LEAD_BY_PHASE=[1.0,1.0,0.95,0.85,0.70,0.45]; // fraction of warned public that can still act, by phase issued
 const VALUE_OF_LIFE=2.0;
@@ -842,9 +860,9 @@ const PRESETS={
 const PATHOLOGIES={
  normal:{name:'Well-behaved guidance',clue:'Run-to-run consistency looks normal for this range.'},
  jumpy:{name:'Jumpy track',clue:'The track has shifted a grid cell between the last two runs.'},
- underdispersive:{name:'Under-dispersive ensemble',clue:'Spread looks unusually low for this synoptic regime — treat the confidence with caution.'},
+ underdispersive:{name:'Under-dispersive ensemble',clue:'Spread looks unusually low for this synoptic regime. Treat the confidence with caution.'},
  wetbias:{name:'Mountain wet bias',clue:'This model is known to over-rain the Greyspine in this flow.'},
- convective:{name:'Convective under-resolution',clue:'Convection is poorly resolved at this grid length — surface-water tail risk may be under-represented.'},
+ convective:{name:'Convective under-resolution',clue:'Convection is poorly resolved at this grid length, so surface-water tail risk may be under-represented.'},
  obsoutage:{name:'Observation outage',clue:'A buoy and one radar are down; confidence may fall, not rise, near impact.'},
 };
 
@@ -1066,6 +1084,22 @@ function ensembleFor(phaseIdx){
 function trigProb(probs,trigger){if(!trigger)return 0;const o=probs[trigger.r];return o.byImpact[trigger.k]!=null?o.byImpact[trigger.k]:o.sig;}
 
 /* ===================== message quality + response ===================== */
+/* Which channels actually land with which audiences. A named group reached only through channels
+   outside its set gets a reach discount; the composer surfaces the gap with a fix suggestion. */
+const GROUP_CHANNEL_FIT={
+ 'Care homes':['Community leaders','Media briefing','Local radio'],
+ 'Riverside residents':['Cell broadcast','Local radio','Community leaders'],
+ 'Basement-flat tenants':['Cell broadcast','Community leaders','Local radio'],
+ 'Tourists':['Cell broadcast','Website','Broadcast media'],
+ 'Fishing community':['Local radio','Community leaders'],
+ 'Elderly residents':['Local radio','Community leaders'],
+ 'Drivers':['Broadcast media','Local radio','Cell broadcast'],
+ 'Low-income (no transport)':['Community leaders','Local radio'],
+ 'Schools':['Media briefing','Website','Broadcast media'],
+ 'Residents':['Cell broadcast','Broadcast media','Local radio','Website'],
+};
+function groupChannelFit(group,channels){const good=GROUP_CHANNEL_FIT[group];if(!good)return 1;return (channels||[]).some(c=>good.includes(c))?1:0.65;}
+function groupFitFactor(msg){const gs=(msg&&msg.groups)||[];if(!gs.length)return 1;const mean=gs.reduce((t,g)=>t+groupChannelFit(g,msg.channels),0)/gs.length;return 0.6+0.4*mean;}
 function channelReach(channels,rid){if(!channels||!channels.length)return 0;const risk=(typeof G!=='undefined'&&G&&G._infraRisk)?G._infraRisk:null;
  let s=0;channels.forEach(c=>{let w=CHWEIGHT[c]||0;if(risk&&rid==='northisles'&&c==='Cell broadcast')w*=(1-0.85*(risk.tower_north||0));s+=w;});return clamp(s,0,0.96);}
 function messageClarity(msg,extent,phase){
@@ -1101,7 +1135,7 @@ function responseAt(level,extent,msg,rid,trust,fatigue,phaseIdx,presser){
  if(level===0)return {c:0,reach:0,clarity:0,feas:1};
  const base=[0,0.18,0.55,0.82][level];
  const lead=LEAD_BY_PHASE[phaseIdx];
- const reach=msg?channelReach(msg.channels,rid):0.22;
+ const reach=(msg?channelReach(msg.channels,rid):0.22)*groupFitFactor(msg);
  const clarity=messageClarity(msg?Object.assign({level},msg):null,extent,phaseIdx);
  const feas=feasibility(msg,rid);
  const fat=clamp(fatigue/100,0,1);
@@ -1130,6 +1164,9 @@ function warningBurden(){let b=0,p=0,a=0;const ph=BURDEN_PHASE[G.phase];const ap
   b+=ph*[0,0.6,3.0,7.5][w.level]*popWarned;
   p+=ph*[0,0,1.2,3.0][w.level]*Math.sqrt(popWarned+0.3);
   a+=ap*[0,1.0,2.2,3.6][w.level]*(0.5+popWarned*0.5);
+  /* a region-wide Red five days out burns credibility even before it burns budget: defensible
+     for genuine tails, never a free hedge */
+  if(w.level>=3&&w.extent!=='targeted'&&G.phase<=1){a+=1.5*popWarned;p+=0.6*Math.sqrt(popWarned+0.3);}
  });return {b,p,a};
 }
 function projectedFutureBurden(){const per=warningBurden();const cur=BURDEN_PHASE[G.phase]||1;let futFactor=0;for(let i=G.phase;i<PHASES.length;i++)futFactor+=BURDEN_PHASE[i];const mult=futFactor/cur;const remaining=PHASES.length-G.phase;return {b:per.b*mult,p:per.p*mult,a:per.a*mult,perB:per.b,remaining};}
@@ -1167,7 +1204,9 @@ function resolveWith(driverGetter,accFn){
   const D=rawD*(1-lifeMit),P=rawP*(1-dmgMit);totD+=D;totP+=P;idealD+=rawD*(1-(sev>0.45?0.9:0.2));
   regionOut[rg.id]={d,sev,rawD,D,rawP,P,lifeMit,dmgMit,acc,warn:G.warnings[rg.id],readiness:regionReadiness(rg.id),infraHit};
  });
- let actionCost=0;Object.keys(G.taken).forEach(aid=>{const a=ACTIONS.find(x=>x.id===aid);const disc=(G.taken.brief&&G.taken.brief.phase<=G.taken[aid].phase)?0.85:1;actionCost+=Math.round(a.cost.b*disc);});
+ let actionCost=0;Object.keys(G.taken).forEach(aid=>{const tk=G.taken[aid];
+  if(tk&&tk.paid){actionCost+=tk.paid.b;return;} /* the price actually paid at commitment */
+  const a=ACTIONS.find(x=>x.id===aid);const disc=(G.taken.brief&&G.taken.brief.phase<=tk.phase)?0.85:1;actionCost+=Math.round(a.cost.b*disc);});
  const lossEquiv=totP+actionCost+totD*VALUE_OF_LIFE+G.burdenSpent.b;
  return {totD,totP,baseD,baseP,idealD,actionCost,regionOut,lossEquiv,deaths:totD,failed};
 }
@@ -1231,37 +1270,37 @@ function gatherVoices(E){
  const burden=warningBurden();
  const vw=G.warnings.vale;
  // duty meteorologist — always
- if(s.bimodal)out.push({who:'Duty meteorologist',pr:9,t:`Track is still bimodal — the inland cluster (${Math.round(s.inl*100)}%) carries the flood tail, but an offshore miss (${Math.round(s.off*100)}%) is live too.`});
+ if(s.bimodal)out.push({who:'Duty meteorologist',pr:9,t:`Track is still bimodal; the inland cluster (${Math.round(s.inl*100)}%) carries the flood tail, but an offshore miss (${Math.round(s.off*100)}%) is live too.`});
  else out.push({who:'Duty meteorologist',pr:7,t:`Guidance leans to ${s.track} with ${s.rainType}; system looks ${s.strength}. ${ph<=1?'Too early to commit to one scenario.':'Spread is tightening.'}`});
  // hydrologist — river vs surface water divergence
- if(s.vm.urbanSW>0.45&&s.vm.urbanSW>s.vm.riverLevel+0.08)out.push({who:'Hydrologist',pr:8,t:`Surface-water routing could fail before the river peaks — the road network and hospital access may go first, not riverside homes.`});
+ if(s.vm.urbanSW>0.45&&s.vm.urbanSW>s.vm.riverLevel+0.08)out.push({who:'Hydrologist',pr:8,t:`Surface-water routing could fail before the river peaks: the road network and hospital access may go first, not riverside homes.`});
  else if(s.vm.riverLevel>0.45)out.push({who:'Hydrologist',pr:7,t:`This reads as a prolonged river flood on the Aven; antecedent soils are already wet, so the peak builds slowly but high.`});
  // police liaison — evacuation deliverability vs lead time
  if(valeDanger>0.18){
-  if(ph>=4)out.push({who:'Police liaison',pr:9,t:`If you want an evacuation it has to be now — after T−24 we cannot staff a floodplain clearance in time.`});
-  else if(mrEvac<0.55)out.push({who:'Police liaison',pr:8,t:`Late evacuation may not be deliverable on current readiness — we'd need lead time and the chain stood up first.`});
+  if(ph>=4)out.push({who:'Police liaison',pr:9,t:`If you want an evacuation it has to be now. After T−24 we cannot staff a floodplain clearance in time.`});
+  else if(mrEvac<0.55)out.push({who:'Police liaison',pr:8,t:`Late evacuation may not be deliverable on current readiness. We'd need lead time and the chain stood up first.`});
  }
  // local authority — shelter capacity as the limiting factor
  if(valeDanger>0.15&&!G.taken.shelters)out.push({who:'Local authority',pr:8,t:`Shelter capacity is the limiting factor if evacuation becomes necessary — there is nowhere to send people yet.`});
  // infrastructure lead — bridge / hospital bottleneck
- if((risk.aven_bridge||0)>0.3)out.push({who:'Infrastructure lead',pr:8,t:`Aven Bridge is the hospital-access bottleneck — ${Math.round((risk.aven_bridge||0)*100)}% failure risk would cut the route the warning relies on.`});
- else if((risk.tower_north||0)>0.4)out.push({who:'Infrastructure lead',pr:7,t:`North Isles telecom is exposed — if it drops, a cell-broadcast warning won't reach the isles at all.`});
+ if((risk.aven_bridge||0)>0.3)out.push({who:'Infrastructure lead',pr:8,t:`Aven Bridge is the hospital-access bottleneck: ${Math.round((risk.aven_bridge||0)*100)}% failure risk would cut the route the warning relies on.`});
+ else if((risk.tower_north||0)>0.4)out.push({who:'Infrastructure lead',pr:7,t:`North Isles telecom is exposed. If it drops, a cell-broadcast warning won't reach the isles at all.`});
  // media officer — clarity / naming
  if(vw.level>=2&&vw.extent==='region'&&(!vw.msg||!(vw.msg.groups||[]).length))out.push({who:'Media officer',pr:7,t:`The public won't act on "Vale Corridor" unless we name specific places and who should do what.`});
  // minister — political cost of over-warning
  if(burden.b>14||(vw.level>=2&&s.off>0.3))out.push({who:'Minister',pr:6,t:`A broad ${vw.level>=3?'Red':'Amber'} will be costly and hard to walk back if the track shifts offshore — be sure the probabilities carry it.`});
  // coastguard — fetch physics: the seas are made by the circulation, not the centre
- if(E.probs.northisles.sev>0.30)out.push({who:'Coastguard',pr:8,t:`Sea state is building faster than the harbour gauges read — the fetch is doing the damage, not the centre of the low. The isles can take a severe hit even if the track stays well away from them.`});
+ if(E.probs.northisles.sev>0.30)out.push({who:'Coastguard',pr:8,t:`Sea state is building faster than the harbour gauges read. The fetch is doing the damage, not the centre of the low. The isles can take a severe hit even if the track stays well away from them.`});
  // dam operator — drawdown is a slow lever
- if(s.vm.riverLevel>0.4&&!G.taken.drawdown&&ph<=2)out.push({who:'Dam operator',pr:7,t:`Reservoir is carrying high antecedent storage. A controlled drawdown is a two-day operation — it can be started now or not at all; it cannot be done at T−24.`});
+ if(s.vm.riverLevel>0.4&&!G.taken.drawdown&&ph<=2)out.push({who:'Dam operator',pr:7,t:`Reservoir is carrying high antecedent storage, and a controlled drawdown is a two-day operation. It can be started now or not at all; there is no starting it at T−24.`});
  // neighbouring met service — consistency pressure
- if(ph<=2&&REGIONS.some(rg=>{const sv=E.probs[rg.id].sev;return sv>0.25&&sv<0.6;}))out.push({who:'Neighbouring met service',pr:5,t:`Our neighbours have gone a category higher on the same guidance. Not binding — but if we diverge and they verify, the inconsistency will be the story.`});
+ if(ph<=2&&REGIONS.some(rg=>{const sv=E.probs[rg.id].sev;return sv>0.25&&sv<0.6;}))out.push({who:'Neighbouring met service',pr:5,t:`Our neighbours have gone a category higher on the same guidance. That is not binding, but if we diverge and they verify, the inconsistency will be the story.`});
  // schools liaison — closure timing
- if(ph>=3&&valeDanger>0.2&&!G.taken.schools)out.push({who:'Schools liaison',pr:6,t:`If schools are to close it must be announced by this evening — a morning-of closure strands children on flooded routes and causes more chaos than the storm.`});
+ if(ph>=3&&valeDanger>0.2&&!G.taken.schools)out.push({who:'Schools liaison',pr:6,t:`If schools are to close it must be announced by this evening. A morning-of closure strands children on flooded routes and causes more chaos than the storm.`});
  // community leader — last-mile channel for the isles
- if(G.warnings.northisles.level>=2&&(!G.warnings.northisles.msg||!(G.warnings.northisles.msg.channels||[]).includes('Community leaders')))out.push({who:'Island community leader',pr:7,t:`The isles don't act on a colour from the mainland — they act when someone they know tells them. Put the warning through the community channel or it stays a poster on a website.`});
+ if(G.warnings.northisles.level>=2&&(!G.warnings.northisles.msg||!(G.warnings.northisles.msg.channels||[]).includes('Community leaders')))out.push({who:'Island community leader',pr:7,t:`The isles don't act on a colour from the mainland; they act when someone they know tells them. Put the warning through the community channel or it stays a poster on a website.`});
  // verification scientist — model (epistemic) vs ensemble (aleatory) uncertainty
- const PADV={underdispersive:'Ensemble spread looks too tight for this regime — treat these probabilities as a floor, not the full uncertainty.',convective:'Convection is under-resolved — the surface-water/flash tail is probably worse than the numbers show.',wetbias:'This model over-rains the Greyspine — discount its rain unless observations confirm it.',jumpy:'Track is jumpy run-to-run — avoid over-narrow targeted warnings.',obsoutage:'Sensors are down — confidence may fall, not rise, near impact; don\u2019t over-trust a quiet nowcast.',normal:''};
+ const PADV={underdispersive:'Ensemble spread looks too tight for this regime. Treat these probabilities as a floor rather than the full uncertainty.',convective:'Convection is under-resolved — the surface-water/flash tail is probably worse than the numbers show.',wetbias:'This model over-rains the Greyspine — discount its rain unless observations confirm it.',jumpy:'Track is jumpy run-to-run — avoid over-narrow targeted warnings.',obsoutage:'Sensors are down — confidence may fall, not rise, near impact; don\u2019t over-trust a quiet nowcast.',normal:''};
  if(PADV[G.path]&&(isTraining()||true))out.push({who:'Verification scientist',pr:6,t:PADV[G.path]});
  return out.sort((a,b)=>b.pr-a.pr).slice(0,4);
 }
@@ -1269,7 +1308,7 @@ function gatherVoices(E){
 /* operational response audit (live): qualitative proxies the room can actually see, not the hidden funnel */
 function responseAudit(rg,w){
  if(w.level<1||!w.msg)return null;
- const reach=channelReach(w.msg.channels,rg.id);
+ const reach=channelReach(w.msg.channels,rg.id)*groupFitFactor(w.msg);
  const clarity=messageClarity(Object.assign({level:w.level},w.msg),w.extent,G.phase);
  const feas=feasibility(w.msg,rg.id);
  const cred=clamp(G.trust[rg.id]-(overclaimed(Object.assign({level:w.level},w.msg),G.phase)?0.18:0)-(G._volc&&G._volc[rg.id]>2?0.08:0),0,1);
@@ -1280,15 +1319,15 @@ const NOTES_A=[
  'Scenario clusters are separating. A one-cell track shift swings Vale flood risk sharply.',
  'Run-to-run consistency improving. This is the window to commit anticipatory action.',
  'Uncertainty narrowing; public messaging now becomes central.',
- 'Guidance largely settled. Disruptive measures are on the table — and so is their cost.',
- 'Observations arriving. What you see is close to what you\u2019ll get — last chance to act with lead time.',
+ 'Guidance largely settled. Disruptive measures are on the table, and so is their cost.',
+ 'Observations arriving. What you see is close to what you\u2019ll get; this is the last chance to act with lead time.',
 ];
 const NOTES_B=[
- 'Five days out, the tails matter more than the mean. Ask what would hurt, not what is likeliest.',
- 'The clusters are pulling apart — watch which family the new runs join before you commit.',
+ 'Five days out, the tails matter more than the mean. Ask what would hurt rather than what is likeliest.',
+ 'The clusters are pulling apart. Watch which family the new runs join before you commit.',
  'Consistency is the commodity now. If the runs agree two cycles running, the lead-time window is open.',
  'The forecast question is closing; the communication question is opening.',
- 'The remaining uncertainty is in the details — timing, tide, routing — not the headline.',
+ 'The remaining uncertainty is in the details (timing, tide, routing), not the headline.',
  'Nowcast hours. Corrections beat re-forecasts; resist churn for its own sake.',
 ];
 const NOTES=null; /* selected per-seed in buildPhase via notesFor() */
@@ -1307,8 +1346,8 @@ function computeEnsembleOutcome(E){const acc=rid=>accumulatedResponse(rid,true);
 function refreshOutcome(){if(G&&G._E){G._ensOut=computeEnsembleOutcome(G._E);}}
 function checkBudget(){
  if(!G)return;
- if(G.res.budget<=0&&!G.lowBudgetWarned){G.lowBudgetWarned=true;queueAlerts([{who:'Finance director',txt:'Preparedness budget exhausted — no funds left for further sectoral actions this event. Whatever is not already committed will not happen.',tone:'urgent'}]);}
- else if(G.res.budget>0&&G.res.budget<18&&!G.lowBudgetWarned){G.lowBudgetWarned=true;toast('Preparedness budget running low — prioritise the highest-value actions.');}
+ if(G.res.budget<=0&&!G.lowBudgetWarned){G.lowBudgetWarned=true;queueAlerts([{who:'Finance director',txt:'Preparedness budget exhausted: no funds remain for further sectoral actions this event. Whatever is not already committed will not happen.',tone:'urgent'}]);}
+ else if(G.res.budget>0&&G.res.budget<18&&!G.lowBudgetWarned){G.lowBudgetWarned=true;toast('Preparedness budget running low. Prioritise the highest-value actions.');}
 }
 function buildPhase(){
  const ph=PHASES[G.phase];const E=ensembleFor(G.phase);G._E=E;
@@ -1361,8 +1400,22 @@ const INFRA_DRV_TXT={sub_west:'damaging gusts',sub_vale:'river level + gusts',av
 const INFRA_FAIL_TXT={sub_west:'Westshore power outage; signals & pumps fail',sub_vale:'capital grid feeder load-shed',aven_bridge:'evacuation feasibility \u2193, hospital access \u2193',capital_hospital:'hospital continuity lost; dialysis & transfers at risk',island_power:'islands go dark; telecom then at risk',tower_north:'cell-broadcast reach to the isles fails'};
 const WLET=['','Y','A','R'];
 let MAPSEL=null;
-function trackPoint(tt){return [8+58*clamp(tt,0,1), 58-30*clamp(tt,0,1)];}
-function trackPath(tt,wob){const e=trackPoint(tt);wob=wob||0;const c1x=18+wob,c1y=62-3*tt,c2x=38+wob,c2y=48-12*tt;return {d:`M3,70 C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${e[0].toFixed(1)},${e[1].toFixed(1)}`,e,c1:[c1x,c1y],c2:[c2x,c2y]};}
+/* Track geometry, v11. Offshore solutions (low track param) now genuinely miss the land: they run
+   north parallel to the coast and exit the top of the map at sea, sweeping past the isles' waters as
+   the parameter rises. Only from t≈0.36 does the endpoint cross the coastline, and deep-inland
+   penetration needs t>0.6. The blend is smooth so members near a cluster boundary read as
+   coast-grazers rather than jumping between families. Display-only; the physics uses the raw latent. */
+function trackPoint(tt){tt=clamp(tt,0,1);
+ const ex=8+58*tt;
+ const k=sstep(tt,0.26,0.46);            /* 0 = offshore runner, 1 = landfalling */
+ const ey=3+((58-30*tt)-3)*k;
+ return [ex,ey];
+}
+function trackPath(tt,wob){tt=clamp(tt,0,1);const e=trackPoint(tt);wob=wob||0;
+ const k=sstep(tt,0.26,0.52);
+ const c1x=9+9*k+wob*k,   c1y=48+((62-3*tt)-48)*k;
+ const c2x=10+28*k+wob*k, c2y=22+((48-12*tt)-22)*k;
+ return {d:`M3,70 C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${e[0].toFixed(1)},${e[1].toFixed(1)}`,e,c1:[c1x,c1y],c2:[c2x,c2y]};}
 const PROG=[0.06,0.22,0.40,0.58,0.76,0.90]; /* fraction of the approach completed at each briefing (T-120 .. T-6) */
 function bezPoint(p0,p1,p2,p3,t){const u=1-t,a=u*u*u,b=3*u*u*t,c=3*u*t*t,d=t*t*t;return [a*p0[0]+b*p1[0]+c*p2[0]+d*p3[0],a*p0[1]+b*p1[1]+c*p2[1]+d*p3[1]];}
 function renderMap(E){
@@ -1392,7 +1445,9 @@ function renderMap(E){
  const memPts=E.members.map(m=>{
   const pts=baseCurve(m.L.track);const out=[pts[0]];let off=0,vel=0;
   for(let k=1;k<K;k++){
-   vel=0.55*vel+((er()-0.5)+(er()-0.5))*1.8*noise;off=clamp(off+vel,-7,7);
+   vel=0.55*vel+((er()-0.5)+(er()-0.5))*1.8*noise;
+   const sea=m.L.track<0.30; /* offshore runners: keep the walk tight so they do not wander over the coast */
+   off=clamp(off+vel,sea?-4:-7,sea?4:7);
    const a=pts[Math.max(0,k-1)],b2=pts[Math.min(K-1,k+1)];
    let nx=-(b2[1]-a[1]),ny=(b2[0]-a[0]);const nl=Math.hypot(nx,ny)||1;nx/=nl;ny/=nl;
    out.push([clamp(pts[k][0]+nx*off,1,99),clamp(pts[k][1]+ny*off,1,71)]);
@@ -1426,7 +1481,7 @@ function renderMap(E){
  if(!prevA)A=mS.slice();
  else{let dx=mS[0]-prevA[0],dy=mS[1]-prevA[1];const mag=Math.hypot(dx,dy);const MAX=9;
   if(mag>MAX){dx*=MAX/mag;dy*=MAX/mag;}
-  if(dy>-0.8)dy=-0.8; /* always some forward progress */
+  if(dy>-0.8){dy=-0.8;const room=Math.sqrt(MAX*MAX-dy*dy);if(Math.abs(dx)>room)dx=Math.sign(dx)*room;} /* forward progress, total step still <= MAX */
   A=[clamp(prevA[0]+dx,3,97),clamp(prevA[1]+dy,4,70)];}
  G._anchors[G.phase]=A;
  const obsPts=[[3,70]];for(let i=0;i<=G.phase;i++)if(G._anchors[i])obsPts.push(G._anchors[i]);
@@ -1483,7 +1538,7 @@ function renderMap(E){
  </svg>`;
  wrap.innerHTML=svg;
  const leg=document.getElementById('mapLegend');
- if(leg)leg.innerHTML=`<span class="lg"><i class="oln"></i>observed track \u00b7 analysed low</span><span class="lg"><i class="cone"></i>track cone \u2014 10\u201390% of member positions at each lead time; the low\u2019s likely path, not the hazard area</span><span class="lg"><i class="hz"></i>hatching \u2014 ensemble chance of severe impacts</span><span class="lg"><i class="nd"></i>infrastructure failure risk (click)</span><span class="lg"><i class="rv"></i>River Aven</span>`;
+ if(leg)leg.innerHTML=`<span class="lg"><i class="oln"></i>observed track \u00b7 analysed low</span><span class="lg"><i class="cone"></i>track cone: 10\u201390% of member positions at each lead time. The low\u2019s likely path, not the hazard area</span><span class="lg"><i class="hz"></i>hatching \u2014 ensemble chance of severe impacts</span><span class="lg"><i class="nd"></i>infrastructure failure risk (click)</span><span class="lg"><i class="rv"></i>River Aven</span>`;
  renderMapInfo(E);
 }
 function focusRegion(rid){MAPSEL={kind:'region',id:rid};renderMapInfo(G._E);const el=document.getElementById('reg-'+rid);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1200);}}
@@ -1499,7 +1554,7 @@ function renderMapInfo(E){
   el.innerHTML=`<div class="mi-hd">The low \u00b7 track clusters <button class="mi-x" onclick="MAPSEL=null;renderMapInfo()">\u00d7</button></div>`
    +`<div class="mi-row"><span>Analysed position</span><span>${prog}% of approach \u00b7 ${PHASES[G.phase].t}</span></div>`
    +c.map(cl=>`<div class="mi-row"><span>${cl.nm}</span><span class="mono">${Math.round(cl.pc*100)}%</span></div>`).join('')
-   +`<div class="mi-note">Confidence ${conf<0.35?'low':conf<0.65?'moderate':'high'}${chg?' \u00b7 '+chg:''}.${G._lobes>=2?' The fan is drawn as <b>separate lobes</b> \u2014 the ensemble is split between track families, so plan against more than one scenario.':''} The cone is built from the spread of member positions at each lead time \u2014 the low\u2019s likely path, not the hazard footprint. Impacts routinely occur outside it: severe seas are fetch-driven and can devastate the isles while the centre tracks elsewhere. It narrows as briefings pass.</div>`;
+   +`<div class="mi-note">Confidence ${conf<0.35?'low':conf<0.65?'moderate':'high'}${chg?' \u00b7 '+chg:''}.${G._lobes>=2?' The fan is drawn as <b>separate lobes</b> \u2014 the ensemble is split between track families, so plan against more than one scenario.':''} The cone is built from the spread of member positions at each lead time: the low\u2019s likely path, not the hazard footprint. Impacts routinely occur outside it: severe seas are fetch-driven and can devastate the isles while the centre tracks elsewhere. It narrows as briefings pass.</div>`;
   return;
  }
  if(MAPSEL.kind==='infra'){
@@ -1542,21 +1597,21 @@ function renderSituation(E){
  const prog=PROG[G.phase];const late=prog>=0.74;const onshore=prog>=0.88;
  let tension;
  if(s.bimodal)tension=late
-   ?`Even this close, the ensemble still splits into track families — the average of two storms is not a storm. Plan against both, because one of them is hours away.`
-   :`Track is unresolved — a damaging inland flood and a near-miss are both on the table. The cost of committing early sits against the cost of being caught short.`;
+   ?`Even this close, the ensemble still splits into track families, and the average of two storms is not a storm. Plan against both, because one of them is hours away.`
+   :`Track is unresolved: a damaging inland flood and a near-miss are both on the table. The cost of committing early sits against the cost of being caught short.`;
  else if(s.vm.urbanSW>0.45&&s.vm.urbanSW>s.vm.riverLevel+0.08)tension=late
-   ?`Surface water is now a routing problem, not a forecast problem — roads go before the river peaks, and whatever still has to move should move while it can.`
+   ?`Surface water has become a routing problem: roads go before the river peaks, and whatever still has to move should move while it can.`
    :`Surface-water route loss is the live uncertainty: evacuation lead time may run out before the river itself peaks.`;
  else if(valeDanger>0.3)tension=late
-   ?`The flood is arriving into whatever readiness exists — at this range feasibility beats the colour on the masthead. What was not stood up earlier cannot be conjured now.`
+   ?`The flood is arriving into whatever readiness exists. At this range feasibility beats the colour on the masthead; what was not stood up earlier cannot be conjured now.`
    :`A danger-to-life inland flood is increasingly plausible, but a feasible evacuation needs police, shelters and lead time in place first.`;
  else if(s.wm.surge>0.5)tension=onshore
-   ?`The surge window is on the coast — peak water arrives with the next tide, and the high-tide question is being answered in front of you, not on the charts.`
-   :late?`Surge arrives on the coming tide cycles — whether it lands on the high tide is now a nowcast question, not a scenario.`
+   ?`The surge window is on the coast. Peak water arrives with the next tide, and the high-tide question is being answered in front of you rather than on the charts.`
+   :late?`Surge arrives on the coming tide cycles; whether it lands on the high tide has become a nowcast question.`
    :`The coastal surge signal is firming up; the question is whether it lands on the high tide.`;
  else tension=onshore
-   ?`The low is coming ashore with ${s.rainType} — what you see is close to what you get, and reactive churn now costs more than it buys.`
-   :`No single scenario dominates yet — ${s.track} with ${s.rainType}. Hold options open and watch the tail.`;
+   ?`The low is coming ashore with ${s.rainType}. What you see is close to what you get, and reactive churn now costs more than it buys.`
+   :`No single scenario dominates yet: ${s.track} with ${s.rainType}. Hold options open and watch the tail.`;
  el.innerHTML=`<span class="sit-lbl">Situation · ${PHASES[G.phase].t}</span><span class="sit-body">${tension}</span><span class="sit-stance">${PHASES[G.phase].stance}</span>`;
 }
 /* incoming desk traffic: short, state-derived prompts that expose the consequences of the current
@@ -1568,7 +1623,7 @@ function renderIncoming(E){
  const warnLv=rid=>G.warnings[rid].level;const ext=rid=>G.warnings[rid].extent;
  // North Isles ferry window
  if((prob('northisles','isolation')>0.4||E.probs.northisles.sev>0.45)&&ph>=2&&!G.taken.ferry)
-  cards.push({who:'Ferry operator',txt:'Seas are building — the last safe sailing is tonight. Island evacuation has to be decided now, not at T\u22126.',tone:'urgent'});
+  cards.push({who:'Ferry operator',txt:'Seas are building and the last safe sailing is tonight. Island evacuation has to be decided now, not at T\u22126.',tone:'urgent'});
  // Aven bridge camera
  if((risk.aven_bridge||0)>0.4)cards.push({who:'Aven bridge camera',txt:'Surface water is building on the hospital-road approach. If it overtops, evacuation and hospital access go together.',tone:'warn'});
  // dialysis / hospital
@@ -1585,24 +1640,33 @@ function renderIncoming(E){
  // social media rumour (flash/greyspine)
  if((prob('greyspine','flash')>0.45||E.probs.greyspine.sev>0.5)&&ph>=3)
   cards.push({who:'Social media',txt:'Unverified rumour spreading that a Greyspine dam has failed. A clear, fast public line will either calm or inflame it.',tone:'warn',rumour:true});
+ // island rumour mill: a false ferry-cancellation story that suppresses response if ignored
+ if(ph>=2&&warnLv('northisles')>=1&&E.probs.northisles.sev>0.25)
+  cards.push({who:'Island grapevine',txt:'A story is going round the isles that the ferry company has already cancelled tomorrow\u2019s sailings, so leaving is pointless. The operator says it is false. Left alone it will hollow out your warning.',tone:'warn',rumour:true});
+ // school-closure rumour ahead of any decision
+ if(ph===3&&maxDangerProb(E,'vale')>0.25&&!G.taken.schools)
+  cards.push({who:'Parents\u2019 groups',txt:'Word is spreading that schools will close tomorrow. No such decision has been made. Either make the call or correct the record; a vacuum gets filled.',tone:'pol',rumour:true});
  // port authority — closing after the wind arrives is not a plan
  if(E.probs.westshore.sev>0.4&&!G.taken.port&&ph>=3)
-  cards.push({who:'Port authority',txt:'Crane derating starts at gale force. Closing the port after the wind arrives is not a plan — it is an accident report.',tone:'warn'});
+  cards.push({who:'Port authority',txt:'Crane derating starts at gale force. If we close after the wind has arrived, we are writing an accident report.',tone:'warn'});
  // care-home federation — a warning is not a wheelchair
  if(warnLv('vale')>=2&&G.warnings.vale.msg&&LEAVING.includes(G.warnings.vale.msg.action)&&feasibility(G.warnings.vale.msg,'vale')<0.7)
-  cards.push({who:'Care-home federation',txt:'Thirty-seven residents across our floodplain homes need transport and a destination. A warning is not a wheelchair — where do you want them, and how do they get there?',tone:'urgent'});
+  cards.push({who:'Care-home federation',txt:'Thirty-seven residents across our floodplain homes need transport and a destination. A warning is not a wheelchair. Where do you want them, and how do they get there?',tone:'urgent'});
  // supermarket logistics — panic buying under a broad Red
  {const redReg=REGIONS.find(rg=>warnLv(rg.id)>=3&&ext(rg.id)==='region');
-  if(redReg)cards.push({who:'Supermarket logistics',txt:`Panic-buying has started in ${redReg.name}. If the Red holds, say what people actually need to do — vague danger empties shelves faster than floods do.`,tone:'pol'});}
+  if(redReg)cards.push({who:'Supermarket logistics',txt:`Panic-buying has started in ${redReg.name}. If the Red holds, say what people actually need to do; vague danger empties shelves faster than floods do.`,tone:'pol'});}
  // tourism board — the cost side of a possible false alarm
  if(E.clusters[0].pc>0.45&&REGIONS.some(rg=>warnLv(rg.id)>=2)&&ph>=2)
-  cards.push({who:'Tourism board',txt:'Coastal bookings are cancelling on the back of the warnings. If this is going to miss, the sooner that is said publicly, the less it costs everyone.',tone:'pol'});
+  cards.push({who:'Tourism board',txt:'Coastal bookings are cancelling on the back of the warnings. If this is going to miss, the sooner that is said publicly the less it costs everyone.',tone:'pol'});
  // Eastmarch wake
  if((prob('eastmarch','dust')>0.4||prob('eastmarch','power')>0.4))
   cards.push({who:'Eastmarch district',txt:'Downslope wind and dust rising; scattered power loss reported. Older, isolated residents are the concern.',tone:'info'});
  // calm fallback
- if(!cards.length)cards.push({who:'Operations desk',txt:ph<2?'Quiet on the desk. Use the lead time — decide what would hurt us, not just what is most likely.':'Nothing pressing on the desk this hour. Watch the tail and keep the messaging coherent.',tone:'calm'});
+ if(!cards.length)cards.push({who:'Operations desk',txt:ph<2?'Quiet on the desk. Use the lead time to decide what would hurt us, beyond what is most likely.':'Nothing pressing on the desk this hour. Watch the tail and keep the messaging coherent.',tone:'calm'});
  const TONE={urgent:'var(--red)',warn:'var(--amber)',pol:'var(--brand)',info:'var(--muted)',calm:'var(--faint)'};
+ /* urgent traffic and rumours surface first; the feed only shows three cards */
+ const PRI={urgent:0,warn:2,pol:3,info:4,calm:5};
+ cards.sort((a,b)=>((a.rumour?1:PRI[a.tone])-(b.rumour?1:PRI[b.tone])));
  el.innerHTML=`<div class="inc-t">Incoming · operations desk</div>`+cards.slice(0,3).map(c=>`<div class="inc-card" style="border-left-color:${TONE[c.tone]}"><span class="inc-who">${c.who}</span><span class="inc-txt">${c.txt}</span></div>`).join('');
  /* urgent traffic and rumours interrupt the desk as modal dialogues — they were getting lost in the feed */
  queueAlerts(cards.filter(c=>c.tone==='urgent'||c.rumour));
@@ -1622,7 +1686,7 @@ function showNextAlert(){
  if(!c){w.classList.remove('open');return;}
  const col=c.tone==='urgent'?'var(--red)':c.rumour?'var(--amber)':'var(--brand)';
  const box=document.getElementById('alertBox');
- if(box)box.innerHTML=`<div class="al-eyebrow" style="color:${col}">${c.tone==='urgent'?'\u26a0 Urgent \u00b7 incoming':'Incoming \u00b7 needs a line'}</div><div class="al-who">${c.who}</div><div class="al-txt">${c.txt}</div><div class="al-foot"><button class="cta" onclick="dismissAlert()">Acknowledge \u25b8</button></div>`;
+ if(box)box.innerHTML=`<div class="al-eyebrow" style="color:${col}">${c.tone==='urgent'?'\u26a0 Urgent \u00b7 incoming':c.rumour?'UNVERIFIED \u00b7 rumour reaching the desk':'Incoming \u00b7 needs a line'}</div><div class="al-who">${c.who}</div><div class="al-txt">${c.txt}</div><div class="al-foot"><button class="cta" onclick="dismissAlert()">Acknowledge \u25b8</button></div>`;
  w.classList.add('open');
 }
 function dismissAlert(){ALERTQ.shift();showNextAlert();}
@@ -1642,11 +1706,11 @@ function renderDiagnosis(E){
   const prog=PROG[G.phase];
   const pos=prog<0.3?'well out in the Atlantic':prog<0.58?'closing on Seloria':prog<0.85?'approaching the coast':'over the coastal waters';
   const tideTxt=pick(s.meanTide>0.6
-    ?['Onshore flow coincides with a high tide.','Peak winds line up with the high-tide window.','The tide tables are not on our side — peak surge rides the high water.']
-    :['Tide phase is not aligned with peak surge.','High water and peak winds miss each other — the tide is doing us a favour.','Surge timing falls into the ebb; the tide takes the edge off.']);
+    ?['Onshore flow coincides with a high tide.','Peak winds line up with the high-tide window.','The tide tables are against us; peak surge rides the high water.']
+    :['Tide phase is not aligned with peak surge.','High water and peak winds miss each other, so the tide is doing us a favour.','Surge timing falls into the ebb; the tide takes the edge off.']);
   const head=pick([
     `A ${s.strength} low ${pos}, taking ${s.track}; ${s.rainType} on its flanks.`,
-    `The low — ${s.strength} — sits ${pos} on ${s.track}, carrying ${s.rainType}.`,
+    `The low, ${s.strength}, sits ${pos} on ${s.track}, carrying ${s.rainType}.`,
     `Guidance has the system ${pos}: ${s.strength}, ${s.track}, with ${s.rainType}.`]);
   syn.innerHTML=`<span class="syn-line"><b>Synoptic setup.</b> ${head} ${tideTxt}</span>`;
  }
@@ -1766,13 +1830,15 @@ function openComposer(rid){const w=G.warnings[rid];COMP={rid,draft:w.msg?JSON.pa
 function closeComposer(){document.getElementById('overlay').classList.remove('open');COMP=null;}
 function renderComposer(){
  const rg=RMAP[COMP.rid];const w=G.warnings[COMP.rid];const d=COMP.draft;
- const reach=channelReach(d.channels,COMP.rid),clarity=messageClarity(Object.assign({level:w.level},d),w.extent),feas=feasibility(d,COMP.rid);
+ const reach=channelReach(d.channels,COMP.rid)*groupFitFactor(d),clarity=messageClarity(Object.assign({level:w.level},d),w.extent),feas=feasibility(d,COMP.rid);
+ const weakGroups=(d.groups||[]).filter(g=>groupChannelFit(g,d.channels)<1);
+ const groupHint=weakGroups.length?`<div class="feaswarn" style="border-left-color:var(--yellow)">Reach is weak for ${weakGroups.map(g=>`<b>${g}</b>`).join(', ')}: the selected channels miss how ${weakGroups.length>1?'these audiences get':'this audience gets'} warnings. Consider ${[...new Set(weakGroups.flatMap(g=>(GROUP_CHANNEL_FIT[g]||[]).slice(0,2)))].join(' or ')}.</div>`:'';
  const area=w.extent==='targeted'?targetedArea(COMP.rid):rg.name;
  const og=(arr,sel,fn,warn)=>arr.map(o=>`<button class="${(Array.isArray(sel)?sel.includes(o):sel===o)?'on'+(warn?' warn':''):''}" onclick="${fn}('${o.replace(/'/g,"\\'")}')">${o}</button>`).join('');
  const grpTxt=d.groups.length?d.groups.join(', '):'all residents';
  const valid=`valid ${PHASES[G.phase].t.replace('−','-')} → next update in 6 h`;
  const preview=`<b>${d.severity} · ${d.certainty.toLowerCase()} · ${d.urgency.toLowerCase()}</b> — ${d.certainty} ${rg.primary} in <b>${area}</b>. ${LEAVING.includes(d.action)?'Some communities may be cut off.':d.action==='Shelter in place'?'Conditions outside may be dangerous.':'Stay alert to updates.'} <b>${grpTxt}</b> should <b>${d.action.toLowerCase()}</b>. Issued via ${d.channels.length?d.channels.join(', '):'— no channel —'}. <span style="color:var(--faint)">${valid}.</span>`;
- const feasWarn=(LEAVING.includes(d.action)&&feas<0.8)?`<div class="feaswarn">You are telling mobility-constrained groups to leave with no feasible way to do so yet. Publishing this anyway is allowed — and an Amber/Red carrying a leave order <b>pulls the supporting sectoral actions forward to the next briefing</b> (at a premium) so the system can catch up with the warning. But until shelters / transport are stood up, it will cost you on equity.</div>`:'';
+ const feasWarn=(LEAVING.includes(d.action)&&feas<0.8)?`<div class="feaswarn">You are telling mobility-constrained groups to leave with no feasible way to do so yet. Publishing this anyway is allowed, and an Amber/Red carrying a leave order <b>pulls the supporting sectoral actions forward to the next briefing</b> (at a premium) so the system can catch up with the warning. But until shelters / transport are stood up, it will cost you on equity.</div>`:'';
  const ocWarn=overclaimed(Object.assign({level:w.level},d),G.phase)?`<div class="feaswarn">At ${PHASES[G.phase].t} you cannot honestly mark this <b>${d.certainty==='Observed'?'Observed':'Immediate'}</b> — the event hasn\u2019t occurred yet. Overclaiming certainty reads as crying wolf and reduces credibility. Use Likely/Expected until observations confirm it.</div>`:'';
  document.getElementById('composer').innerHTML=`
   <div class="ch"><div><h3>Compose ${wtag(w.level)} warning — ${rg.name}</h3><div class="sub">${area} · Common Alerting Protocol style</div></div><button class="cx" onclick="closeComposer()">×</button></div>
@@ -1784,7 +1850,7 @@ function renderComposer(){
    <div class="field"><div class="fl">Protective action</div><div class="opts">${og(ACTIONOPTS,d.action,'setAct')}</div></div>
    <div class="field"><div class="fl">Target groups (specificity & equity)</div><div class="opts">${og(rg.groups,d.groups,'toggleGroup',true)}</div></div>
    <div class="field"><div class="fl">Channels (reach)</div><div class="opts">${og(CHANNELS,d.channels,'toggleChannel')}</div></div>
-   ${feasWarn}${ocWarn}
+   ${feasWarn}${ocWarn}${groupHint}
    ${(()=>{ /* impact-based forecasting matrix: where the ensemble puts this region right now */
      const o2=G._E?G._E.probs[COMP.rid]:null;const per=(G._ensOut&&G._ensOut.per)?G._ensOut.per[COMP.rid]:null;
      if(!o2||!per)return '';
@@ -1798,8 +1864,20 @@ function renderComposer(){
      const doc=MATCOL[impB][likeB];
      let grid='';
      for(let im=3;im>=0;im--){for(let lk=0;lk<4;lk++){const on=(im===impB&&lk===likeB);grid+=`<i style="background:${CMAP[MATCOL[im][lk]]};opacity:${on?1:0.28};${on?'outline:1.5px solid var(--ink);outline-offset:1px;':''}"></i>`;}}
-     return `<div class="field"><div class="fl">Impact-based warning matrix (likelihood \u00d7 impact)</div><div class="ibmat"><div class="ibgrid" role="img" aria-label="likelihood by impact matrix">${grid}</div><div class="ibcap">Likelihood <b>${['very low','low','medium','high'][likeB]}</b> \u00b7 potential impact <b>${['minimal','minor','significant','severe'][impB]}</b> \u2192 doctrine colour for this cell: <b style="color:${CMAP[doc]}">${CWORD[doc]}</b>. The matrix is standard impact-based forecasting practice \u2014 it frames the call; it does not make it.</div></div></div>`;
+     return `<div class="field"><div class="fl">Impact-based warning matrix (likelihood \u00d7 impact)</div><div class="ibmat"><div class="ibgrid" role="img" aria-label="likelihood by impact matrix">${grid}</div><div class="ibcap">Likelihood <b>${['very low','low','medium','high'][likeB]}</b> \u00b7 potential impact <b>${['minimal','minor','significant','severe'][impB]}</b> \u2192 indicative colour for this cell: <b style="color:${CMAP[doc]}">${CWORD[doc]}</b>. ${G._lobes>=2?'Confidence is low while the track families disagree, so treat the cell as provisional. ':G.phase<=1?'At this range the spread is wide and the cell can move two columns overnight. ':''}The matrix is standard impact-based forecasting practice: it frames the call, and the call stays yours.</div></div></div>`;
    })()}
+   ${(()=>{ /* operational-update line: what changed vs the last published state for this region */
+     const hist=G.warnHistory[COMP.rid]||[];const last=hist.length?hist[hist.length-1]:null;
+     const changed=[];
+     if(!last||last.level===0){changed.push(w.level>0?'initial issue at '+['','Yellow','Amber','Red'][w.level]:'initial issue');}
+     else{
+       if(w.level!==last.level)changed.push((w.level>last.level?'raised ':'stepped down ')+['no warning','Yellow','Amber','Red'][last.level]+' \u2192 '+['no warning','Yellow','Amber','Red'][w.level]);
+       const lm=last.msg||{};
+       if(lm.action!==d.action)changed.push('action now \u201c'+d.action+'\u201d');
+       if((lm.certainty||'')!==d.certainty)changed.push('certainty now '+d.certainty.toLowerCase());
+       if(!changed.length)changed.push('no change in level or instruction; holding the line');
+     }
+     return `<div class="field"><div class="fl">Operational update line</div><div style="font-size:12px;color:var(--muted)">What changed: ${changed.join(' \u00b7 ')}. Next update at ${G.phase<5?PHASES[G.phase+1].t:'impact'}.</div></div>`;})()}
    <div class="preview"><div class="pv-lbl">Published warning preview</div><div class="pv-body">${preview}</div></div>
    <div class="qbars">
     <div class="qbar"><div class="ql">Reach <b>${Math.round(reach*100)}%</b></div><div class="qt"><i style="width:${reach*100}%;background:var(--brand)"></i></div></div>
@@ -1846,12 +1924,12 @@ function renderActions(E){
   let trig='';if(a.trigger){const rg=RMAP[a.trigger.r];const im=rg.impacts.find(x=>x.k===a.trigger.k);const p=trigProb(E.probs,a.trigger);const ev=marginalEV(a,ctx);
    const trigTxt=`<span class="trig whytrig" title="Keys off ${im?im.l:a.trigger.k} in ${rg.name}, not overall severity — this is the specific driver that matters.">trigger: ${im?im.l:a.trigger.k} — ${Math.round(p*100)}%</span>`;
    let evTxt;
-   if(expert){const evcol=ev>EV_DEADBAND?'var(--green)':ev<-EV_DEADBAND?'var(--red)':'var(--faint)';evTxt=`<span class="trig" style="color:${evcol}" title="Marginal expected loss reduction across the ensemble, given everything you've already done. It falls as a risk is already covered (diminishing returns) and rises as the supporting readiness chain is built.">marginal EV ${ev>=0?'+':'−'}£${Math.abs(ev).toFixed(0)}m</span>`;}
+   if(expert){const evcol=ev>EV_DEADBAND?'var(--green)':ev<-EV_DEADBAND?'var(--red)':'var(--faint)';evTxt=`<span class="trig" style="color:${evcol}" title="Marginal expected loss reduction across the ensemble, given everything you've already done. Budget-and-loss terms only: political capital and disruption fatigue are charged separately and shown in the cost line. It falls as a risk is already covered (diminishing returns) and rises as the supporting readiness chain is built.">loss EV ${ev>=0?'+':'−'}£${Math.abs(ev).toFixed(0)}m</span>`;}
    else{const b=evBand(ev);evTxt=`<span class="trig evword" style="color:${b.c}" title="A qualitative read of whether this action is worth its cost right now, given the current probabilities and everything already in place. The exact £m figure is shown in the debrief and in expert mode.">${b.w}</span>`;}
    trig=trigTxt+' '+evTxt;}
   const gain=READINESS_GAIN[a.id];let rgain='';if(gain){const parts=Object.keys(gain).sort((x,y)=>gain[y]-gain[x]).map(k=>`${ASHORT[k]||k} <b>+${Math.round(gain[k]*100)}</b>`);rgain=`<div class="rgain">Readiness: ${parts.join(' · ')}</div>`;}
   const can=done||affordable(a);
-  const em=!done&&isEmergencyNow(a)?`<div class="embadge" title="This action normally opens next briefing. Your escalated warning has pulled it forward — at a premium, because the system is being stood up in a hurry.">\u26a1 EMERGENCY ACTIVATION — pulled forward by your warning (+40% cost)</div>`:'';
+  const em=!done&&isEmergencyNow(a)?`<div class="embadge" title="This action normally opens next briefing. Your escalated warning has pulled it forward, at a premium, because the system is being stood up in a hurry.">\u26a1 EMERGENCY ACTIVATION \u00b7 pulled forward by your warning (+40% cost)</div>`:'';
   return `<div class="actrow${(!done&&isEmergencyNow(a))?' emrow':''}"><div class="ai"><div class="an">${a.name}</div><div class="ad">${a.desc}</div>${em}<div class="anote">${a.note}</div><div class="acost">${cost.join('&nbsp;·&nbsp;')} ${trig}</div>${rgain}</div><button class="actbtn ${done?'committed':''}" ${(!can&&!done)?'disabled':''} onclick="takeAction('${a.id}')">${done?'✓ Committed':'Commit'}</button></div>`;
  };
  if(G.phase===0){
@@ -1861,7 +1939,10 @@ function renderActions(E){
  }
 }
 function takeAction(aid){if(G.taken[aid])return;const a=ACTIONS.find(x=>x.id===aid);const c=actionCostNow(a);if(!affordable(a)){toast('Insufficient resources.');return;}
- G.res.budget-=c.b;G.res.polcap-=c.p;G.res.attention=clamp(G.res.attention+c.a,0,100);G.taken[aid]={phase:G.phase};
+ G.res.budget-=c.b;G.res.polcap-=c.p;G.res.attention=clamp(G.res.attention+c.a,0,100);
+ /* store the cost actually paid (incl. partner discount and any emergency surcharge) so the
+    debrief's action-cost total and EVs reconcile with the budget the player really spent */
+ G.taken[aid]={phase:G.phase,paid:{b:c.b,p:c.p,a:c.a},emergency:!!c.em};
  if(a.trust)REGIONS.forEach(rg=>G.trust[rg.id]=clamp(G.trust[rg.id]+a.trust,0,1));
  const gain=READINESS_GAIN[aid];if(gain)Object.keys(gain).forEach(act=>{G.readiness[act]=clamp(G.readiness[act]+gain[act],0,1);});
  checkBudget();refreshOutcome();renderRes();renderActions(G._E);renderRegions(G._E);renderProjections(G._E);renderReadiness(G._E);toast('Committed: '+a.name.split('—')[0].trim());}
@@ -1914,26 +1995,30 @@ function renderObs(E){
  const obsR=rng(G.seed^0x0B5E^(G.phase*131));
  const realD=computeDrivers(G.truth);
  const done=G.obsDone[G.phase]||(G.obsDone[G.phase]={});
- const card=(name,unit,driverVal,meanVal,scale,act)=>{
-  const obs=clamp(driverVal+gauss(obsR)*0.04,0,1.5);const obsU=(obs*scale).toFixed(scale>20?0:1);
+ /* observations carry siting and instrument caveats so the obs desk is evidence, not an oracle */
+ const card=(name,unit,driverVal,meanVal,scale,act,conf)=>{
+  const noisy=conf&&conf.sd?conf.sd:0.04;
+  const obs=clamp(driverVal+gauss(obsR)*noisy,0,1.5);const obsU=(obs*scale).toFixed(scale>20?0:1);
   const diff=obs-meanVal;const diverge=Math.abs(diff)>0.12;const f=diverge?'diverge':'agree';
   const note=diverge?(diff>0?'Running <b>higher</b> than guidance':'Running <b>lower</b> than guidance'):'Consistent with guidance';
+  const confHtml=conf?`<div class="obsconf" title="${conf.cav}">${conf.label} confidence \u00b7 ${conf.cav}</div>`:'';
   let actHtml='';
   if(diverge&&act){const id=act.id;const did=done[id];actHtml=`<div class="obsact"><button class="${did?'done':''}" onclick="obsAction('${id}')">${did?'\u2713 '+act.doneLabel:(diff>0?act.up:act.down)}</button></div>`;}
-  return `<div class="obscard"><div class="on"><span>${name}</span><span>obs</span></div><div class="ov">${obsU}${unit}</div><div class="of ${f}">${note}</div>${actHtml}</div>`;
+  return `<div class="obscard"><div class="on"><span>${name}</span><span>obs</span></div><div class="ov">${obsU}${unit}</div><div class="of ${f}">${note}</div>${confHtml}${actHtml}</div>`;
  };
  const cards=[
-  card('River Aven gauge','m',realD.vale.riverLevel,E.drvMean.vale.riverLevel,6.0,{id:'river',up:'Raise Vale river warning',down:'Ease Vale river warning',doneLabel:'adjusted'}),
-  card('Urban radar accum.','mm',realD.vale.urbanSW,E.drvMean.vale.urbanSW,70,{id:'surface',up:'Raise Vale surface-water warning',down:'Hold Vale warning',doneLabel:'adjusted'}),
-  card('Westshore gust','kt',realD.westshore.gust,E.drvMean.westshore.gust,75,{id:'gust',up:'Raise Westshore warning',down:'Ease Westshore warning',doneLabel:'adjusted'}),
-  card('Tide/surge gauge','m',realD.westshore.surge,E.drvMean.westshore.surge,4.0,{id:'surge',up:'Issue surge update',down:'Surge below guidance',doneLabel:'noted'}),
+  card('River Aven gauge','m',realD.vale.riverLevel,E.drvMean.vale.riverLevel,6.0,{id:'river',up:'Raise Vale river warning',down:'Ease Vale river warning',doneLabel:'adjusted'},{label:'High',cav:'rating curve uncertain above flood stage',sd:0.05}),
+  card('Urban radar accum.','mm',realD.vale.urbanSW,E.drvMean.vale.urbanSW,70,{id:'surface',up:'Raise Vale surface-water warning',down:'Hold Vale warning',doneLabel:'adjusted'},{label:'Moderate',cav:'drainage response to these totals is uncertain',sd:0.07}),
+  card('Westshore gust','kt',realD.westshore.gust,E.drvMean.westshore.gust,75,{id:'gust',up:'Raise Westshore warning',down:'Ease Westshore warning',doneLabel:'adjusted'},{label:'High',cav:'exposed coastal site; inland gusts will run lower',sd:0.05}),
+  card('Tide/surge gauge','m',realD.westshore.surge,E.drvMean.westshore.surge,4.0,{id:'surge',up:'Issue surge update',down:'Surge below guidance',doneLabel:'noted'},{label:'Moderate',cav:'single local gauge; may not represent the full coast',sd:0.08}),
  ];
  let rumour='';
- if(obsR()<0.55){const rk=Math.floor(obsR()*3);const rdef=[{t:'the Aven bridge has collapsed',drv:realD.vale.urbanSW},{t:'a Greyspine dam is overtopping',drv:realD.greyspine.valleyCut},{t:'Westshore seafront is already underwater',drv:realD.westshore.surge}][rk];
+ if(obsR()<0.68){const rk=Math.floor(obsR()*3);const rdef=[{t:'the Aven bridge has collapsed',drv:realD.vale.urbanSW},{t:'a Greyspine dam is overtopping',drv:realD.greyspine.valleyCut},{t:'Westshore seafront is already underwater',drv:realD.westshore.surge}][rk];
   const supported=rdef.drv>0.62;const rdone=done.rumour;
   let rbtns=rdone?`<div class="obsact"><button class="done">\u2713 handled: ${rdone}</button></div>`:`<div class="obsact"><button onclick="obsAction('rumour_verify')">Verify with field teams</button><button onclick="obsAction('rumour_correct')">Publicly correct</button><button onclick="obsAction('rumour_ignore')">Ignore</button></div>`;
   let reveal=(rdone==='verified')?` <span style="color:${supported?'var(--red)':'var(--faint)'}">Field check: ${supported?'partly supported \u2014 act on it':'no evidence \u2014 false report'}.</span>`:'';
   G._rumour={supported,text:rdef.t};
+  if(!rdone)queueAlerts([{who:'Social media',txt:`Reports circulating that ${rdef.t}. Unconfirmed, and no official observation supports it yet. Decide how to handle it at the observations desk: verify, publicly correct, or ignore.`,tone:'warn',rumour:true}]);
   rumour=`<div class="obscard" style="grid-column:1/-1"><div class="on"><span>Social media</span><span>UNVERIFIED</span></div><div class="of rumour">Reports that ${rdef.t} \u2014 <b>unconfirmed</b>; no official observation supports this yet.${reveal}</div>${rbtns}</div>`;
  } else {G._rumour=null;}
  el.style.display='block';
@@ -1951,30 +2036,37 @@ function obsAction(id){const done=G.obsDone[G.phase]||(G.obsDone[G.phase]={});co
 }
 
 /* plume */
-function drawPlume(E){
- const cv=document.getElementById('plume');const dpr=window.devicePixelRatio||1;const W=cv.clientWidth||560,H=190;
+function _plume(E,cfg){
+ const cv=document.getElementById(cfg.id);if(!cv)return;const dpr=window.devicePixelRatio||1;const W=cv.clientWidth||560,H=cfg.h||190;
  cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
- const padL=34,padR=10,padT=12,padB=22,base=2.0,maxLvl=10;
+ const padL=34,padR=10,padT=12,padB=22,base=cfg.base,maxLvl=cfg.max;
  const yOf=v=>padT+(H-padT-padB)*(1-clamp((v-base)/(maxLvl-base),0,1));
  const tStart=-120,tEnd=12,xOf=t=>padL+(W-padL-padR)*((t-tStart)/(tEnd-tStart));
  const now=-PHASES[G.phase].lead;
- ctx.fillStyle='rgba(223,70,61,0.06)';ctx.fillRect(padL,padT,W-padL-padR,yOf(8)-padT);
+ ctx.fillStyle='rgba(223,70,61,0.06)';ctx.fillRect(padL,padT,W-padL-padR,yOf(cfg.thresholds[2][0])-padT);
  ctx.font='9px IBM Plex Mono';ctx.textBaseline='middle';
- [4,6,8].forEach((lv,i)=>{ctx.strokeStyle=['#2c4a39','#5a4a26','#5a2c28'][i];ctx.setLineDash([3,4]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(padL,yOf(lv));ctx.lineTo(W-padR,yOf(lv));ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=['#5da57e','#c6a955','#d06a64'][i];ctx.textAlign='left';ctx.fillText(lv+'m',4,yOf(lv));});
+ cfg.thresholds.forEach(([lv,stroke,fill])=>{ctx.strokeStyle=stroke;ctx.setLineDash([3,4]);ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(padL,yOf(lv));ctx.lineTo(W-padR,yOf(lv));ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=fill;ctx.textAlign='left';ctx.fillText(lv+cfg.unit,4,yOf(lv));});
  ctx.fillStyle='#5a6772';ctx.textAlign='center';[-120,-96,-72,-48,-24,0].forEach(t=>ctx.fillText(t===0?'IMPACT':'T'+t,xOf(t),H-8));
  ctx.strokeStyle='#5bb0d4';ctx.lineWidth=1.5;ctx.setLineDash([2,3]);ctx.beginPath();ctx.moveTo(xOf(now),padT);ctx.lineTo(xOf(now),H-padB);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='#5bb0d4';ctx.textAlign='left';ctx.fillText('now',xOf(now)+4,padT+6);
- const er=rng(G.seed^0xABCD^G.phase);
- const sorted=E.members.map(m=>m.D.vale.riverLevel).sort((a,b)=>a-b);const medPk=base+sorted[25]*6.3;
- /* current observed level rises monotonically toward impact (was inverted, resetting low each phase) */
+ const er=rng(G.seed^cfg.seedXor^G.phase);
+ const peaks=E.members.map(cfg.driver).sort((a,b)=>a-b);const medPk=base+peaks[25]*cfg.scale;
+ /* current observed level rises monotonically toward impact */
  const prog=clamp((120-PHASES[G.phase].lead)/114,0,1);const anchorFrac=sstep(prog,0,1);
- const curLevel=base+0.3+(medPk-base)*0.82*anchorFrac;
- /* observed-so-far trace: a faint solid line from T−120 up to "now", anchoring the plume to history */
+ const curLevel=base+cfg.obs0+(medPk-base)*0.82*anchorFrac;
  ctx.strokeStyle='rgba(207,230,242,0.5)';ctx.lineWidth=1.5;ctx.beginPath();
- for(let t=tStart;t<=now;t+=4){const f=sstep(clamp((t-tStart)/(now-tStart||1),0,1),0,1);const v=base+0.3+(curLevel-base-0.3)*f;if(t===tStart)ctx.moveTo(xOf(t),yOf(v));else ctx.lineTo(xOf(t),yOf(v));}ctx.stroke();
- E.members.forEach(m=>{const pk=base+m.D.vale.riverLevel*6.3;ctx.strokeStyle='rgba(91,176,212,0.16)';ctx.lineWidth=1;ctx.beginPath();
-  for(let t=now;t<=tEnd;t+=6){const rise=sstep(t,now,4);const v=curLevel+(pk-curLevel)*rise+gauss(er)*0.12*(1-Math.abs(t)/120);if(t===now)ctx.moveTo(xOf(t),yOf(v));else ctx.lineTo(xOf(t),yOf(Math.max(base,v)));}ctx.stroke();});
+ for(let t=tStart;t<=now;t+=4){const f=sstep(clamp((t-tStart)/(now-tStart||1),0,1),0,1);const v=base+cfg.obs0+(curLevel-base-cfg.obs0)*f;if(t===tStart)ctx.moveTo(xOf(t),yOf(v));else ctx.lineTo(xOf(t),yOf(v));}ctx.stroke();
+ E.members.forEach(m=>{const pk=base+cfg.driver(m)*cfg.scale;ctx.strokeStyle=cfg.memberStroke;ctx.lineWidth=1;ctx.beginPath();
+  for(let t=now;t<=tEnd;t+=6){const rise=sstep(t,now,4);const v=curLevel+(pk-curLevel)*rise+gauss(er)*cfg.jit*(1-Math.abs(t)/120);if(t===now)ctx.moveTo(xOf(t),yOf(v));else ctx.lineTo(xOf(t),yOf(Math.max(base,v)));}ctx.stroke();});
  ctx.strokeStyle='#cfe6f2';ctx.lineWidth=2;ctx.beginPath();
  for(let t=now;t<=tEnd;t+=4){const rise=sstep(t,now,4);const v=curLevel+(medPk-curLevel)*rise;if(t===now)ctx.moveTo(xOf(t),yOf(v));else ctx.lineTo(xOf(t),yOf(v));}ctx.stroke();
+}
+function drawPlume(E){
+ _plume(E,{id:'plume',base:2.0,max:10,unit:'m',scale:6.3,obs0:0.3,jit:0.12,seedXor:0xABCD,
+  driver:m=>m.D.vale.riverLevel,
+  thresholds:[[4,'#2c4a39','#5da57e'],[6,'#5a4a26','#c6a955'],[8,'#5a2c28','#d06a64']],memberStroke:'rgba(91,176,212,0.16)'});
+ _plume(E,{id:'plumeSurge',base:0.3,max:4.6,unit:'m',scale:2.9,obs0:0.1,jit:0.07,seedXor:0x5E4A,
+  driver:m=>m.D.westshore.surge,
+  thresholds:[[1.5,'#2c4a39','#5da57e'],[2.5,'#5a4a26','#c6a955'],[3.5,'#5a2c28','#d06a64']],memberStroke:'rgba(122,196,164,0.16)'});
 }
 
 /* ===================== advance / resolve ===================== */
@@ -1982,7 +2074,7 @@ function advance(){
  const E=G._E;
  // snapshot history with the per-phase public response actually generated this phase
  const ctx=evContext(E,true);
- const evByAction={};ACTIONS.forEach(a=>{if(a.trigger){const ce=a.cost.b*(G.taken.brief?0.85:1)+a.cost.p*0.4+a.cost.a*0.15;evByAction[a.id]={ev:marginalEV(a,ctx),cost:ce};}});
+ const evByAction={};ACTIONS.forEach(a=>{if(a.trigger){const tk=G.taken[a.id];const cc=(tk&&tk.paid)?tk.paid:actionCostNow(a);const ce=cc.b+cc.p*0.4+(cc.a!=null?cc.a:a.cost.a)*0.15;evByAction[a.id]={ev:marginalEV(a,ctx),cost:ce};}});
  REGIONS.forEach(rg=>{const w=G.warnings[rg.id];const resp=responseAt(w.level,w.extent,w.msg,rg.id,G.trust[rg.id],G.res.attention,G.phase,!!G.taken.presser);
   G.warnHistory[rg.id].push({phase:G.phase,level:w.level,extent:w.extent,hasMsg:!!w.msg,msg:w.msg?JSON.parse(JSON.stringify(w.msg)):null,resp});
   const wg=readinessFromWarning(rg.id,w);Object.keys(wg).forEach(a=>{if(G.readiness[a]!=null)G.readiness[a]=clamp(G.readiness[a]+wg[a],0,1);});});
@@ -2080,9 +2172,9 @@ function achievements(R){
  // Model Bias Detected (training names the pathology; expert must infer)
  if(['wetbias','underdispersive','convective','obsoutage'].includes(G.path)&&R.scores.forecast.grade<='B')add('Model Bias Detected','You diagnosed a badly-behaved forecast and weren\u2019t fooled.');
  // Triage Under Fire: a black-swan event, and the response chain still graded well
- if(G.truth.arch==='blackswan'&&['A','B'].includes(R.scores.response.grade))add('Triage Under Fire','An overwhelming event — and you spent scarce resources where they saved the most.');
+ if(G.truth.arch==='blackswan'&&['A','B'].includes(R.scores.response.grade))add('Triage Under Fire','An overwhelming event, and you spent scarce resources where they saved the most.');
  // Held the Line: a phantom threat walked down without panic
- if(G.truth.arch==='phantom'&&topSev<0.45&&!REGIONS.some(rg=>Math.max(0,...G.warnHistory[rg.id].map(h=>h.level))>=3))add('Held the Line','The guidance screamed and then collapsed — you de-escalated with reasons instead of riding it down in silence.');
+ if(G.truth.arch==='phantom'&&topSev<0.45&&!REGIONS.some(rg=>Math.max(0,...G.warnHistory[rg.id].map(h=>h.level))>=3))add('Held the Line','The guidance screamed and then collapsed. You de-escalated with reasons instead of riding it down in silence.');
  // The Whole Chain Held
  if(topSev>0.6&&R.scores.response.grade<='B'&&!Object.values(R.failed).some(Boolean))add('The Whole Chain Held','A severe event, and the warning-to-response chain delivered.');
  return out;
@@ -2264,18 +2356,22 @@ function renderDebrief(R){
  w.innerHTML=`
  <div class="dbrief-hd"><span class="eyebrow">Post-event review · Storm has cleared Seloria</span><h2>Debrief</h2>
    <div class="runtitle">“${R.title}”</div>
-   ${(()=>{const sc=R.scores;const score=Math.round(0.35*sc.forecast.pct+0.30*sc.warning.pct+0.35*sc.response.pct);
-     const tier=score>=88?{n:'Gold — Chief of Service',c:'#e6c24c'}:score>=74?{n:'Silver — Senior Duty Officer',c:'#c9d4dc'}:score>=58?{n:'Bronze — Duty Officer',c:'#c98c4c'}:{n:'No commendation this time',c:'var(--faint)'};
-     const meta=loadMeta();meta.runs=(meta.runs||0)+1;
-     const prevBest=meta.best&&meta.best.score!=null?meta.best.score:null;
-     const isPB=prevBest==null||score>prevBest;
-     if(isPB)meta.best={score,seed:G.seed,title:R.title};
-     let dailyLine='';
-     if(G.daily){const ymd=new Date().toISOString().slice(0,10);if(!meta.daily||meta.daily.ymd!==ymd||score>meta.daily.score)meta.daily={ymd,score};dailyLine=` \u00b7 <b>Daily storm</b> — today's best ${meta.daily.score}`;}
-     saveMeta(meta);
-     return `<div class="medalrow"><div class="medalscore"><span class="msnum mono" id="runScoreNum" data-score="${score}">${score}</span><span class="mslbl">run score</span></div><div class="medaltier" style="color:${tier.c}">${tier.n}</div><div class="medalmeta">${isPB&&prevBest!=null?'<b style="color:var(--green)">New personal best</b>':prevBest!=null?'personal best '+prevBest:''}${prevBest==null&&!isPB?'':''} \u00b7 run ${meta.runs}${dailyLine}</div></div>`;})()}
    <p>The low took <b>${trackName(G.truth.track)}</b> (strength ${G.truth.inten.toFixed(2)}, soil saturation ${(G.truth.sat*100|0)}%, ${G.truth.conv>0.6?'convective/flashy':G.truth.conv<0.4?'prolonged/stratiform':'mixed'} rainfall, ${G.truth.tide>0.6?'surge near high tide':'surge off high tide'}). Forecast pathology: <b>${pathLine}</b>. Seed <b class="mono" style="cursor:pointer" onclick="startGame(${G.seed})" title="replay this storm">#${G.seed.toString(16).toUpperCase()}</b> — click to replay.</p></div>
  ${(()=>{const sc=R.scores;const card=(s,title,sub)=>{const col=s.grade==='A'||s.grade==='B'?'var(--green)':s.grade==='C'?'var(--yellow)':'var(--red)';return `<div class="skillcard"><div class="sk-hd"><span class="sk-title">${title}</span><span class="sk-grade" style="color:${col}">${s.grade}</span></div><div class="sk-sub">${sub}</div><div class="sk-bar"><i style="width:${s.pct}%;background:${col}"></i></div><div class="sk-note">${s.note}</div></div>`;};return `<div class="section-title">Three kinds of skill <span>you can read the weather well and still warn badly — or warn well and have the response fail</span></div><div class="skillgrid">${card(sc.forecast,'Forecast diagnosis','Did you read the hazard pathway, the tail, and the decoy?')}${card(sc.warning,'Warning decision','Was the level defensible, clear, and coherent over time?')}${card(sc.response,'Response chain','Could people actually act — readiness, equity, infrastructure?')}</div>`;})()}
+ ${(()=>{const sc=R.scores;const bs=(G.truth.arch==='blackswan');
+   /* black-swan runs are scored as triage: the response chain dominates, because covering every
+      base was impossible by design (see field manual). */
+   const score=bs?Math.round(0.20*sc.forecast.pct+0.25*sc.warning.pct+0.55*sc.response.pct)
+               :Math.round(0.35*sc.forecast.pct+0.30*sc.warning.pct+0.35*sc.response.pct);
+   const tier=score>=88?{n:'Gold — Chief of Service',c:'#e6c24c'}:score>=74?{n:'Silver — Senior Duty Officer',c:'#c9d4dc'}:score>=58?{n:'Bronze — Duty Officer',c:'#c98c4c'}:{n:'No commendation this time',c:'var(--faint)'};
+   const meta=loadMeta();meta.runs=(meta.runs||0)+1;
+   const prevBest=meta.best&&meta.best.score!=null?meta.best.score:null;
+   const isPB=prevBest==null||score>prevBest;
+   if(isPB)meta.best={score,seed:G.seed,title:R.title};
+   let dailyLine='';
+   if(G.daily){const ymd=new Date().toISOString().slice(0,10);if(!meta.daily||meta.daily.ymd!==ymd||score>meta.daily.score)meta.daily={ymd,score};dailyLine=` \u00b7 <b>Daily storm</b>, today's best ${meta.daily.score}`;}
+   saveMeta(meta);
+   return `<div class="medalrow"><div class="medalscore"><span class="msnum mono" id="runScoreNum" data-score="${score}">${score}</span><span class="mslbl">${bs?'triage score':'run score'}</span></div><div class="medaltier" style="color:${tier.c}">${tier.n}</div><div class="medalmeta">${isPB&&prevBest!=null?'<b style="color:var(--green)">New personal best</b>':prevBest!=null?'personal best '+prevBest:''} \u00b7 run ${meta.runs}${dailyLine}</div><div class="medalcap">${bs?'Overwhelming event: scored on prioritisation and protecting the response chain, not on total loss. You were not expected to save everything; you were expected to choose what mattered most.':'The medal is the headline. The three skill cards above are the learning.'}</div></div>`;})()}
  ${(()=>{const sal=R.salience;if(!sal)return '';const ll=sal.lossLeader,cl=sal.chainLeader;
    let line;
    if(cl&&ll&&cl.rg.id!==ll.rg.id)line=`National loss was dominated by <b>${ll.rg.name}</b>, but the worst warning-chain failure was <b>${cl.rg.name}</b> — ${sal.reason}. The small-exposure regions (Greyspine, North Isles, Eastmarch) rarely top the national \u00a3 figure, yet they can still produce the event\u2019s worst per-capita catastrophe, isolation, or equity failure.`;
@@ -2311,11 +2407,19 @@ function renderDebrief(R){
  <div class="dgrid">
   <div class="card"><div class="hd"><h3>Pivotal decisions</h3><span class="meta">replayed with your numbers</span></div><div class="bd">
    ${pivotal.map(it=>{const cls=it.verdict==='good'?'good':it.verdict==='over'?'ok':'bad';const evtxt=(it.ev>=0?'+':'−')+'£'+Math.abs(it.ev).toFixed(0)+'m';let line,verdict;
+    /* regret framing: pair the decision (judged on what was knowable) with how the hazard verified,
+       so good calls with bad luck and lucky escapes are named as such. Fights hindsight bias. */
+    const verified=it.trigger&&R.regionOut[it.trigger.r]&&R.regionOut[it.trigger.r].sev>0.5;
+    let luck='';
+    if(it.verdict==='good'&&it.took&&!verified)luck=' \u00b7 good decision, the hazard verified quiet \u2014 that is luck, not error';
+    else if(it.verdict==='good'&&!it.took&&verified)luck=' \u00b7 defensible at the time; the tail came in \u2014 bad luck, not bad judgement';
+    else if(it.verdict==='over'&&!verified)luck=' \u00b7 lucky escape: the spend never met a hazard';
+    else if(it.verdict==='under'&&verified)luck=' \u00b7 the regret was real: a materially better option was on the table';
     if(it.verdict==='good'&&it.took){line=`Committed <b>${it.name}</b> at a <b>${Math.round(it.p*100)}%</b> trigger probability. Expected avoided loss £${it.benefit.toFixed(0)}m vs £${it.cost.toFixed(0)}m cost.`;verdict='Right call ✓';}
     else if(it.verdict==='good'&&!it.took){line=`Held back on “${it.name}” at <b>${Math.round(it.p*100)}%</b>. At that likelihood the £${it.benefit.toFixed(0)}m benefit didn\u2019t justify the £${it.cost.toFixed(0)}m cost.`;verdict='Right to wait ✓';}
-    else if(it.verdict==='over'){line=`Committed <b>${it.name}</b> at only <b>${Math.round(it.p*100)}%</b> — expected value was negative.`;verdict='Over-committed';}
+    else if(it.verdict==='over'){line=`Committed <b>${it.name}</b> at only <b>${Math.round(it.p*100)}%</b>, when expected value was negative.`;verdict='Over-committed';}
     else{line=`Skipped <b>${it.name}</b> despite a <b>${Math.round(it.p*100)}%</b> trigger probability. Expected avoided loss (£${it.benefit.toFixed(0)}m) far exceeded the £${it.cost.toFixed(0)}m cost.`;verdict='Missed lead time';}
-    return `<div class="entry ${cls}"><div class="eh">${it.t} · EV ${evtxt}</div><div class="et">${line}</div><div class="verdict">${verdict}</div></div>`;}).join('')}
+    return `<div class="entry ${cls}"><div class="eh">${it.t} · EV ${evtxt}${luck?`<span class="lucktag">${luck}</span>`:''}</div><div class="et">${line}</div><div class="verdict">${verdict}</div></div>`;}).join('')}
    ${R.missed?`<div class="entry ${R.missed.takenPhase===null?'bad':'ok'}"><div class="eh">Biggest missed opportunity</div><div class="et">At <b>${R.missed.t}</b>, ${RMAP[R.missed.a.trigger.r].name} ${RMAP[R.missed.a.trigger.r].impacts.find(x=>x.k===R.missed.a.trigger.k).l.toLowerCase()} probability was already <b>${Math.round(R.missed.p*100)}%</b>. <b>${R.missed.a.name}</b> had expected value <b>+£${R.missed.ev.toFixed(0)}m</b>. ${R.missed.takenPhase===null?'You never took it.':'You waited until '+PHASES[R.missed.takenPhase].t+', cutting its effectiveness.'}</div><div class="verdict">Lead time left on the table</div></div>`:''}
   </div></div>
   <div class="card"><div class="hd"><h3>Public response</h3><span class="meta">accumulated over warning history</span></div><div class="bd">${funnelHTML}
@@ -2341,7 +2445,19 @@ function renderDebrief(R){
   ${brokenLinkHTML(R)}
  </div></div>
  <div class="section-title">Forecast verification <span>was the forecast itself any good?</span></div>
- <div class="card"><div class="bd"><div class="verif">
+ <div class="card"><div class="bd">
+  ${(()=>{const sc=R.scores;const gB=R.verif.avgBrier;
+    const gCol=gB<0.10?'var(--green)':gB<0.18?'var(--yellow)':'var(--red)';
+    const gWord=gB<0.10?'well calibrated':gB<0.18?'usable, with biases':'misleading at times';
+    const gr=x=>{const col=x.grade==='A'||x.grade==='B'?'var(--green)':x.grade==='C'?'var(--yellow)':'var(--red)';return `<b style="color:${col}">${x.grade}</b>`;};
+    return `<div class="chaintbl">
+      <div class="ctr"><span class="ctc">Guidance</span><span class="ctq">Did the ensemble probabilities verify?</span><span class="ctv"><b style="color:${gCol}">${gB.toFixed(3)}</b> Brier \u00b7 ${gWord}</span></div>
+      <div class="ctr"><span class="ctc">Diagnosis</span><span class="ctq">Did you infer the right hazard pathway?</span><span class="ctv">${gr(sc.forecast)} forecast skill</span></div>
+      <div class="ctr"><span class="ctc">Decision</span><span class="ctq">Did warnings and actions match the evidence?</span><span class="ctv">${gr(sc.warning)} warning decision</span></div>
+      <div class="ctr"><span class="ctc">Response</span><span class="ctq">Did the chain deliver on the ground?</span><span class="ctv">${gr(sc.response)} response chain</span></div>
+      <div class="ctnote">Four separate questions. A bad outcome can come from bad guidance, bad diagnosis, a bad call, or a broken chain; this run\u2019s answer sits above.</div>
+    </div>`;})()}
+  <div class="verif">
   <div class="vcard"><div class="vh"><span>Brier skill on headline impacts</span><b>${R.verif.avgBrier.toFixed(3)}</b></div>
    ${R.verif.brierRows.map(b=>`<div class="relrow"><span>${b.label}</span><span class="rb"><i style="width:${clamp((1-b.bs/0.25)*100,0,100)}%"></i></span><span>${b.bs.toFixed(2)}</span></div>`).join('')}
    <div style="font-size:11px;color:var(--faint);margin-top:7px">Lower Brier = better. Compares each briefing’s probability against what actually occurred (0/1). This grades the <b>guidance</b>, separate from your decisions.</div></div>
@@ -2365,8 +2481,8 @@ function renderDebrief(R){
 }
 function goIntro(){document.getElementById('debrief').style.display='none';document.getElementById('intro').style.display='block';window.scrollTo(0,0);}
 function summaryProse(R,lives,net){const bits=[];const hardest=REGIONS.map(rg=>({rg,o:R.regionOut[rg.id]})).sort((a,b)=>b.o.sev-a.o.sev)[0];
- if(G.truth.arch==='blackswan')bits.push(`<b>This was a black-swan compound event</b> — it exceeded the resources available by design. The test was never \u201ccover everything\u201d; it was triage: did the budget go where it bought the most lives? Judge the run on prioritisation, not on the bases left uncovered.`);
- if(G.truth.arch==='phantom')bits.push(`<b>This was a phantom threat</b> — the early guidance locked onto a coastal monster that the atmosphere never delivered. The skill being tested was false-alarm management: proportionate early hedging, then visible, explained de-escalation as the runs backed off.`);
+ if(G.truth.arch==='blackswan')bits.push(`<b>This was a black-swan compound event</b>; it exceeded the resources available by design. The test was triage: did the budget go where it bought the most lives? Judge the run on prioritisation rather than on the bases left uncovered.`);
+ if(G.truth.arch==='phantom')bits.push(`<b>This was a phantom threat</b>: the early guidance locked onto a coastal monster that the atmosphere never delivered. The skill being tested was false-alarm management: proportionate early hedging, then visible, explained de-escalation as the runs backed off.`);
  if(hardest.o.sev>0.45)bits.push(`<b>${hardest.rg.name}</b> bore the brunt — ${hardest.rg.haz.toLowerCase()} reached ${hardest.o.sev>0.72?'danger-to-life':'significant'} severity.`);else bits.push(`The storm largely spared Seloria — no region passed the significant-impact threshold.`);
  // surface vs river divergence callout for Vale
  const v=R.regionOut.vale.d;if(v&&v.urbanSW>0.5&&v.riverLevel<0.45)bits.push(`Note the split: <b>surface-water flooding</b> hit hard while the <b>main river stayed moderate</b> — hospital access and evacuation routes were the real exposure, not riverside homes.`);else if(v&&v.riverLevel>0.6&&v.urbanSW<0.45)bits.push(`This was a <b>prolonged river flood</b> with little flash/surface water — homes along the Aven, not the road network, were the exposure.`);
