@@ -503,7 +503,7 @@ span.docs-eq[style*="inline"]{display:inline !important;padding:1px 7px;font-siz
 
 /* ===== v10 additions ===== */
 .manualbtn{margin-left:auto;background:none;border:1px solid var(--line2);color:var(--muted);font:inherit;font-size:11px;padding:3px 9px;border-radius:6px;cursor:pointer;letter-spacing:.04em}
-.manualbtn:hover{color:var(--ink);border-color:var(--brand)}
+.manualbtn:hover{color:var(--brand);border-color:var(--brand);background:rgba(91,176,212,.08)}
 .seedline{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .trend.imp{font-size:8.5px;margin-left:3px;vertical-align:1px;letter-spacing:0}
 .trend.imp.up{color:var(--red)}.trend.imp.dn{color:var(--green)}
@@ -522,7 +522,7 @@ span.docs-eq[style*="inline"]{display:inline !important;padding:1px 7px;font-siz
 .ibcap{font-size:11.5px;color:var(--muted);line-height:1.5}
 .medalrow{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin:10px 0 2px;padding:10px 14px;border:1px solid var(--line2);border-radius:10px;background:rgba(255,255,255,.02)}
 .medalscore{display:flex;align-items:baseline;gap:7px}
-.msnum{font-size:34px;font-weight:600;color:var(--ink)}
+.msnum{font-size:34px;font-weight:600;color:var(--text)}
 .mslbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
 .medaltier{font-family:'Fraunces',serif;font-size:15.5px;font-style:italic}
 .medalmeta{font-size:11.5px;color:var(--faint)}
@@ -536,7 +536,7 @@ span.docs-eq[style*="inline"]{display:inline !important;padding:1px 7px;font-siz
 .ctr:last-of-type{border-bottom:none}
 .ctc{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
 .ctq{font-size:12.5px;color:var(--muted)}
-.ctv{font-size:12.5px;color:var(--ink);white-space:nowrap}
+.ctv{font-size:12.5px;color:var(--text);white-space:nowrap}
 .ctnote{font-size:11px;color:var(--faint);margin-top:8px;line-height:1.5}
 .medalcap{flex-basis:100%;font-size:11.5px;color:var(--faint);line-height:1.55;margin-top:2px}
 @media (max-width:560px){.ctr{grid-template-columns:74px 1fr;}.ctv{grid-column:2;white-space:normal}}
@@ -600,9 +600,12 @@ span.docs-eq[style*="inline"]{display:inline !important;padding:1px 7px;font-siz
         <div class="bd">
           <div id="synopsis"></div>
           <canvas class="plume" id="plume" width="560" height="190"></canvas>
-          <div style="font-size:11px;color:var(--faint);text-align:center;margin-top:6px" class="mono">VALE CORRIDOR — River Aven peak level (m) · 50-member plume</div>
-          <canvas class="plume" id="plumeSurge" width="560" height="150"></canvas>
-          <div style="font-size:11px;color:var(--faint);text-align:center;margin-top:6px" class="mono">WESTSHORE — storm surge height (m) · 50-member spread on the next tides</div>
+          <div style="font-size:11px;color:var(--faint);text-align:center;margin-top:6px" class="mono" id="plumeLbl"></div>
+          <div id="plumeExtra" style="display:none">
+            <canvas class="plume" id="plume2" width="560" height="150" style="margin-top:8px"></canvas>
+            <div style="font-size:11px;color:var(--faint);text-align:center;margin-top:6px" class="mono" id="plumeLbl2"></div>
+          </div>
+          <button class="manualbtn" id="plumeToggle" onclick="togglePlumes()" style="margin:6px auto 0;display:block;font-size:11px">show second diagnostic ▸</button>
           <div class="clusters" id="clusters"></div>
           <div id="hazDrivers"></div>
           <div class="chains" id="chains"></div>
@@ -669,7 +672,7 @@ span.docs-eq[style*="inline"]{display:inline !important;padding:1px 7px;font-siz
       <h3>3 · Reading the forecast</h3>
       <p><b>The ensemble.</b> Fifty members, each a plausible version of the storm. The spread <em>is</em> the uncertainty — it is not noise to be averaged away. Early on you should ask "what would hurt us?", not "what is most likely?".</p>
       <p><b>The map is a clock.</b> The cyclone symbol is the low's <em>analysed position</em>, advancing toward Seloria each briefing; the solid line behind it is the observed track so far (a kinked observed track is itself a clue that the guidance has been jumping). Ahead of it, each faint line is one ensemble member's remaining track: a smooth path to its own destination plus a correlated cross-track wobble that grows with forecast range, which is why the bundle reads as spaghetti rather than a family of tidy curves. Genuinely offshore members run north parallel to the coast and exit at sea; only tracks past the cluster boundary actually cross the coastline. The shaded <b>cone</b> is <em>derived from those members</em>: at every downstream station it spans the 10–90% spread of member positions across the mean track, so it is literally the presented probabilities made spatial — widening with lead time, narrowing as briefings pass, and physically shrinking as the low advances. The dashed line is the ensemble-mean track. When the members split into distinct track families the cone is drawn as separate dashed lobes: plan against more than one scenario, not the average of them. Crucially, the cone is the <em>possible path of the low centre, not the hazard area</em> — severe seas are fetch-driven and can devastate the North Isles while the centre tracks elsewhere, which is why regions also carry diagonal <b>hatching</b> scaled to the ensemble's chance of severe impacts there, with small ▲/▼ arrows on each impact line showing how the probabilities moved since the last briefing. Hatching is the threat; the colour fill is your decision. A heavily hatched region with no warning colour is the gap you are paid to notice. Click the storm symbol for the cluster split and whether confidence has narrowed since the last briefing.</p>
-      <p><b>The river plume</b> shows the 50-member spread of Vale river levels rising toward impact, with the current observed level on the left climbing as the event approaches.</p>
+      <p><b>The featured diagnostic</b> shows the 50-member spread of whichever driver currently carries the most impact salience — the River Aven hydrograph in a river event, the surge-height plume on a tide-window case, the flash-flood rainfall index when Greyspine is live, the wave or lee-wind index when the isles or Eastmarch are the story — with the current observed level on the left climbing as the event approaches. The runner-up driver sits one click away.</p>
       <p><b>Confidence</b> reflects track spread. It usually rises as impact nears — but not always (see pathologies).</p>
       <p><b>Forecast pathologies.</b> The guidance is sometimes badly behaved: a jumpy track, an under-dispersive ensemble that looks more confident than it should, a model with a known mountain wet bias, under-resolved convection, or an observation outage where confidence <em>falls</em> near impact. Training mode names the pathology; Expert mode gives only the operational clue.</p>
 
@@ -731,7 +734,7 @@ span.docs-eq[style*="inline"]{display:inline !important;padding:1px 7px;font-siz
       and responses accumulate across briefings as <span class="docs-eq" style="display:inline">acted = 1 − ∏(1 − responseᵢ)</span>, so an early warning keeps paying even if later refined. Reach is channel-weighted (cell broadcast strongest, and it fails to the isles if the telecom mast is lost) and is now also <b>group-specific</b>: naming an audience whose channels you have not selected discounts reach, and the composer flags the gap (elderly residents listen to local radio and community leaders, tourists get cell broadcast, fishers follow the harbour channels). Clarity rewards concrete actions, named groups and honest certainty; feasibility collapses if you tell mobility-constrained groups to leave with nothing in place.</p>
       <p><b>Burden and attention.</b> Holding warnings costs <span class="docs-eq" style="display:inline">burden ∝ population warned × colour × BURDEN(phase)</span>, where BURDEN rises from 0.30 at T−120 to 1.0 near impact (disruption bites near landfall), while the attention/credibility cost decays much more slowly (0.55 → 1.0). A region-wide Red in the first two briefings now also carries an extra credibility charge, which is exactly why "early Red just in case" is not free.</p>
       <p><b>Readiness.</b> Each life-safety mission is a <em>weighted harmonic mean</em> of its agencies' readiness: a weakest-link aggregate, so one unprepared agency caps the whole mission no matter how ready the rest are. Life-saving response is then capped at 0.4 + 0.6 × mission readiness.</p>
-      <p><b>Verification.</b> The guidance itself is scored with Brier scores on the headline impacts (mean squared error of each briefing's probability against the 0/1 outcome), and your tail exposure is reported as CVaR: the mean loss of the worst 10% of ensemble outcomes under your final posture. The debrief also applies a <b>regret frame</b> to each pivotal call, pairing the decision (judged on what was knowable) with how the hazard verified, so a good decision with a bad outcome is named as bad luck and a negative-EV commitment that never met a hazard is named as a lucky escape. Black-swan runs report a <b>triage score</b> weighted toward the response chain, because covering every base in those events is impossible by design. From T−24 the observation desk arrives with stated confidence and siting caveats (rating curves above flood stage, radar beam blockage, a single tide gauge for a whole coast): observations are evidence, never an oracle. The forecast-diagnosis card carries a second hydrograph alongside the River Aven plume, the Westshore surge-height plume, built from the same 50 members.</p>
+      <p><b>Verification.</b> The guidance itself is scored with Brier scores on the headline impacts (mean squared error of each briefing's probability against the 0/1 outcome), and your tail exposure is reported as CVaR: the mean loss of the worst 10% of ensemble outcomes under your final posture. The debrief also applies a <b>regret frame</b> to each pivotal call, pairing the decision (judged on what was knowable) with how the hazard verified, so a good decision with a bad outcome is named as bad luck and a negative-EV commitment that never met a hazard is named as a lucky escape. Black-swan runs report a <b>triage score</b> weighted toward the response chain, because covering every base in those events is impossible by design. From T−24 the observation desk arrives with stated confidence and siting caveats (rating curves above flood stage, radar beam blockage, a single tide gauge for a whole coast): observations are evidence, never an oracle. Rumours reaching the desk are decided in the dialogue itself — verify, correct or ignore — and mishandling them costs real trust. The forecast-diagnosis card features one ensemble plume, chosen each briefing from the driver with the most impact salience, with the runner-up one click away — all built from the same 50 members. The headline run score blends the three skill grades with <b>decision quality</b> (the fraction of action calls that were defensible at the EV available at the time), so heavy spending cannot buy a medal that the action ledger does not support. Eastmarch counts against you only as a <b>false focus</b>: a strong warning there when the lee-wind/dust hazard never verified. When the rare wake event is real, recognising it is credited like any other region.</p>
 
       <h3>11 · The theory this game is built on</h3>
       <p><b>Early Warnings for All.</b> The WMO/UNDRR framework defines four pillars (risk knowledge, monitoring &amp; forecasting, dissemination &amp; communication, and preparedness to respond), and its central finding is that warnings fail at the weakest pillar, almost never at the forecast alone. The game's value chain (reach × clarity × belief × feasibility × readiness) is that doctrine made mechanical.</p>
@@ -838,6 +841,8 @@ const ACTIONS=[
  {id:'schools',name:'Close schools',desc:'Keep children off flooded / wind-hit travel routes.',ph:[4,5],cost:{b:10,p:5,a:6},trigger:{r:'vale',k:'fatal'},note:'Timing-dependent; politically charged before a weekend.',ben:(h)=>({d:4*sstep(h,.5,1),p:0})},
  {id:'vehicles',name:'Ban high-sided vehicles — Westshore',desc:'Keep HGVs off exposed bridges & coast roads.',ph:[4,5],cost:{b:2,p:2,a:1},trigger:{r:'westshore',k:'gusts'},note:'Cheap, targeted, high life-value — keys off extreme-gust probability specifically.',ben:(h)=>({d:5*sstep(h,.55,1),p:8*sstep(h,.5,1)})},
  {id:'evac',name:'Order floodplain evacuation — Vale',desc:'Riverside homes, basement flats, care homes leave now.',ph:[4,5],cost:{b:22,p:14,a:9},trigger:{r:'vale',k:'fatal'},enables:'evac',note:'Biggest life-saver if flood verifies; costliest false alarm if not. Keys off danger-to-life, not broad impact.',ben:(h)=>({d:34*sstep(h,.4,1),p:30*sstep(h,.45,1)})},
+ {id:'east_dust',name:'Dust & visibility transport advisory — Eastmarch',desc:'Highways, rural clinics and local radio prepare for poor visibility and lee-wind exposure.',ph:[2,3,4],cost:{b:3,p:1,a:1},trigger:{r:'eastmarch',k:'dust'},note:'Low-cost, targeted action for the rare Eastmarch wake event.',ben:(h)=>({d:2*sstep(h,.45,1),p:12*sstep(h,.45,1)})},
+ {id:'east_health',name:'Rural welfare checks — Eastmarch',desc:'Local teams check elderly residents and exposed farms before the dust/wind peak.',ph:[2,3,4],cost:{b:4,p:1,a:0},trigger:{r:'eastmarch',k:'fatal'},note:'Small national loss at stake, but important per-capita and equity protection.',ben:(h)=>({d:4*sstep(h,.55,1),p:4*sstep(h,.45,1)})},
  {id:'presser',name:'Lead an emergency press conference',desc:'You front it personally, with honest uncertainty.',ph:[3,4,5],cost:{b:0,p:3,a:3},trigger:{r:'vale',k:'fatal'},trust:.07,note:'Boosts credibility & compliance everywhere if clear.',ben:(h)=>({d:3*sstep(h,.4,1),p:0})},
 ];
 
@@ -897,6 +902,8 @@ const READINESS_GAIN={
  vehicles:{police:0.12,transport:0.06},
  presser:{media:0.34,community:0.20},
  drawdown:{utilities:0.10},
+ east_dust:{localAuth:0.08,media:0.06},
+ east_health:{localAuth:0.16,community:0.10},
 };
 /* missions: the protective tasks a warning must actually enable. readiness is a weighted weakest-link of the
    actors who deliver each mission — a chain, not an average, so one weak link (e.g. police) dominates. */
@@ -961,7 +968,9 @@ function marginalEV(action,ctx){const savedT=JSON.stringify(G.taken),savedR=JSON
  const gn=READINESS_GAIN[action.id];let before,after;
  if(G.taken[action.id]){delete G.taken[action.id];if(gn)Object.keys(gn).forEach(a=>{if(G.readiness[a]!=null)G.readiness[a]=clamp(G.readiness[a]-gn[a],0,1);});
   before=expectedSystemLoss(ctx.pre,!!G.taken.drawdown);after=ctx.before;}
- else{G.taken[action.id]={phase:G.phase};if(gn)Object.keys(gn).forEach(a=>{if(G.readiness[a]!=null)G.readiness[a]=clamp(G.readiness[a]+gn[a],0,1);});
+ else{const paid=actionCostNow(action); /* price the counterfactual at the cost the player would ACTUALLY pay now, incl. any emergency surcharge */
+  G.taken[action.id]={phase:G.phase,paid:{b:paid.b,p:paid.p,a:paid.a},emergency:!!paid.em};
+  if(gn)Object.keys(gn).forEach(a=>{if(G.readiness[a]!=null)G.readiness[a]=clamp(G.readiness[a]+gn[a],0,1);});
   after=expectedSystemLoss(ctx.pre,!!G.taken.drawdown);before=ctx.before;}
  G.taken=JSON.parse(savedT);G.readiness=JSON.parse(savedR);
  return before-after;}
@@ -1090,13 +1099,20 @@ const GROUP_CHANNEL_FIT={
  'Care homes':['Community leaders','Media briefing','Local radio'],
  'Riverside residents':['Cell broadcast','Local radio','Community leaders'],
  'Basement-flat tenants':['Cell broadcast','Community leaders','Local radio'],
- 'Tourists':['Cell broadcast','Website','Broadcast media'],
+ 'Tourists':['Cell broadcast','Website','Media briefing'],
  'Fishing community':['Local radio','Community leaders'],
  'Elderly residents':['Local radio','Community leaders'],
- 'Drivers':['Broadcast media','Local radio','Cell broadcast'],
+ 'Drivers':['Media briefing','Local radio','Cell broadcast'],
  'Low-income (no transport)':['Community leaders','Local radio'],
- 'Schools':['Media briefing','Website','Broadcast media'],
- 'Residents':['Cell broadcast','Broadcast media','Local radio','Website'],
+ 'Schools':['Media briefing','Website'],
+ 'Residents':['Cell broadcast','Media briefing','Local radio','Website'],
+ 'Coastal residents':['Local radio','Cell broadcast','Media briefing'],
+ 'Port workers':['Media briefing','Local radio','Website'],
+ 'Valley villages':['Community leaders','Local radio','Cell broadcast'],
+ 'Dam-downstream homes':['Cell broadcast','Community leaders','Local radio'],
+ 'Hikers & campers':['Cell broadcast','Local radio','Website'],
+ 'Hospitals':['Media briefing','Community leaders'],
+ 'Farmers':['Local radio','Community leaders','Website'],
 };
 function groupChannelFit(group,channels){const good=GROUP_CHANNEL_FIT[group];if(!good)return 1;return (channels||[]).some(c=>good.includes(c))?1:0.65;}
 function groupFitFactor(msg){const gs=(msg&&msg.groups)||[];if(!gs.length)return 1;const mean=gs.reduce((t,g)=>t+groupChannelFit(g,msg.channels),0)/gs.length;return 0.6+0.4*mean;}
@@ -1190,11 +1206,13 @@ function resolveWith(driverGetter,accFn){
   if(rg.id==='greyspine'){const mg=MR.greyspine_flash;if(G.taken.pumps_grey)lifeMit+=0.18*mg;if(G.taken.shelters)lifeMit+=0.08*mg;}
   if(rg.id==='westshore'){const mw=MR.westshore_roads;if(G.taken.vehicles)lifeMit+=0.10*mw;if(G.taken.port)lifeMit+=0.04;}
   if(rg.id==='northisles'){const mn=MR.northisles_iso;if(G.taken.ferry)lifeMit+=0.22*mn;}
+  if(rg.id==='eastmarch'){if(G.taken.east_health)lifeMit+=0.20;if(G.taken.east_dust)lifeMit+=0.08;}
   let dmgMit=0;
   if(rg.id==='vale'){if(G.taken.pumps_vale)dmgMit+=0.18;if(G.taken.drawdown)dmgMit+=0.10;if(G.taken.rail)dmgMit+=0.08;}
   if(rg.id==='greyspine'){if(G.taken.pumps_grey)dmgMit+=0.16;}
   if(rg.id==='westshore'){if(G.taken.crews)dmgMit+=0.16;if(G.taken.port)dmgMit+=0.20;}
   if(rg.id==='northisles'){if(G.taken.ferry)dmgMit+=0.22;}
+  if(rg.id==='eastmarch'){if(G.taken.east_dust)dmgMit+=0.12;}
   /* infrastructure cascades */
   const infraHit=[];
   if(rg.id==='vale'){if(failed.aven_bridge){lifeMit-=0.16;infraHit.push('Aven bridge down — evacuation route lost');}if(failed.capital_hospital){lifeMit-=0.14;infraHit.push('Hospital access cut — casualties untreated');}if(failed.sub_vale){dmgMit-=0.10;infraHit.push('Grid feeder down');}}
@@ -1623,7 +1641,9 @@ function renderIncoming(E){
  const warnLv=rid=>G.warnings[rid].level;const ext=rid=>G.warnings[rid].extent;
  // North Isles ferry window
  if((prob('northisles','isolation')>0.4||E.probs.northisles.sev>0.45)&&ph>=2&&!G.taken.ferry)
-  cards.push({who:'Ferry operator',txt:'Seas are building and the last safe sailing is tonight. Island evacuation has to be decided now, not at T\u22126.',tone:'urgent'});
+  cards.push({who:'Ferry operator',tone:'urgent',txt:vary('ferryop',[ 'Seas are building and the last safe sailing is tonight. Island evacuation has to be decided now, not at T\u22126.',
+   'We can hold one more crossing in this swell, maybe two. After that the isles are on their own until it clears. Tell us what you need moved.',
+   'The forecast you are reading is the one that closes this route. If supplies or people are going across, the window is the next twelve hours.'])});
  // Aven bridge camera
  if((risk.aven_bridge||0)>0.4)cards.push({who:'Aven bridge camera',txt:'Surface water is building on the hospital-road approach. If it overtops, evacuation and hospital access go together.',tone:'warn'});
  // dialysis / hospital
@@ -1636,22 +1656,54 @@ function renderIncoming(E){
  if(warnLv('vale')>=2&&ext('vale')==='region')cards.push({who:'Local radio',txt:'Listeners are asking whether Low Quay and Riverside are specifically inside the warning, or just "the Vale".',tone:'info'});
  // police contraflow lead time
  if((prob('vale','homes')>0.45||prob('vale','fatal')>0.3)&&!G.taken.vehicles&&!G.taken.evac&&ph>=2)
-  cards.push({who:'Police Gold',txt:'Contraflow and road closures need six hours\u2019 notice. Tell us now if a Vale evacuation is coming.',tone:'urgent'});
+  cards.push({who:'Police Gold',tone:'urgent',txt:vary('police',[ 'Contraflow and road closures need six hours\u2019 notice. Tell us now if a Vale evacuation is coming.',
+   'If the Vale call is coming, we marshal tonight. If it is not, say so \u2014 holding officers on standby has a cost too.',
+   'We can close the floodplain roads cleanly or we can close them in the rain with traffic already on them. The difference is your decision time.'])});
+ // mountain rescue: short-fuse Greyspine voice
+ if((prob('greyspine','flash')>0.4||prob('greyspine','fatal')>0.3)&&ph>=2&&!G.taken.pumps_grey)
+  cards.push({who:'Mountain rescue',tone:'warn',txt:vary('mrt',[ 'Our teams self-deploy on flash floods, but swift-water kit takes hours to stage. If Greyspine is live, we need the word before the rain, not during it.',
+   'Two campsites and a gorge car park sit below the convective cells you are watching. Once water is in the valleys we are pulling people out of it, not ahead of it.'])});
+ // utility control room: Westshore power risk with no crews staged
+ if(prob('westshore','power')>0.45&&!G.taken.crews&&ph>=2)
+  cards.push({who:'Grid control room',tone:'warn',txt:vary('grid',[ 'Forested feeders on the Westshore coast fail first in these gusts. Crews staged tonight restore in hours; crews mobilised after the event restore in days.',
+   'We are watching the same gust probabilities you are. The question from this desk is simple: are repair crews being pre-positioned, or are we writing outage estimates instead?'])});
+ // insurance association: cost-of-event voice once a broad Amber+ is out late
+ if(ph>=3&&REGIONS.some(rg=>warnLv(rg.id)>=2&&ext(rg.id)==='region'))
+  cards.push({who:'Insurers\u2019 association',tone:'pol',txt:vary('insure',[ 'Members are asking what the warned footprint means for claims handling. The clearer the geography of your warning, the faster payouts move afterwards.',
+   'A precise warning is also an audit trail. If this verifies, the regions and groups you named today are the ones that get rapid claims treatment next week.'])});
+ const bump=o=>Object.keys(o).forEach(a=>{if(G.readiness[a]!=null)G.readiness[a]=clamp(G.readiness[a]+o[a],0,1);});
  // social media rumour (flash/greyspine)
  if((prob('greyspine','flash')>0.45||E.probs.greyspine.sev>0.5)&&ph>=3)
-  cards.push({who:'Social media',txt:'Unverified rumour spreading that a Greyspine dam has failed. A clear, fast public line will either calm or inflame it.',tone:'warn',rumour:true});
+  cards.push({rid:'dam',who:'Social media',tone:'warn',rumour:true,
+   txt:vary('dam',[ 'Unverified rumour spreading that a Greyspine dam has failed. A clear, fast public line will either calm or inflame it.',
+    'A video claiming to show a Greyspine dam "going" is being shared faster than anyone can check it. Silence reads as confirmation.',
+    'Calls coming in about a dam failure upstream of the valley villages. Nothing on telemetry supports it, but the story is moving.']),
+   acts:[{label:'Put out a clear public line',fn:()=>{if(G.res.polcap>=1)G.res.polcap-=1;G.trust.greyspine=clamp(G.trust.greyspine+0.03,0,1);bump({media:.04,fireRescue:.02});handleRumour('dam','corrected');toast('Public line issued \u2014 the story deflates');}},
+        {label:'Ignore it',fn:()=>{G.trust.greyspine=clamp(G.trust.greyspine-0.03,0,1);handleRumour('dam','ignored');toast('Left unaddressed \u2014 the vacuum fills itself');}}]});
  // island rumour mill: a false ferry-cancellation story that suppresses response if ignored
  if(ph>=2&&warnLv('northisles')>=1&&E.probs.northisles.sev>0.25)
-  cards.push({who:'Island grapevine',txt:'A story is going round the isles that the ferry company has already cancelled tomorrow\u2019s sailings, so leaving is pointless. The operator says it is false. Left alone it will hollow out your warning.',tone:'warn',rumour:true});
+  cards.push({rid:'isles_ferry',who:'Island grapevine',tone:'warn',rumour:true,
+   txt:vary('isles',[ 'A story is going round the isles that the ferry company has already cancelled tomorrow\u2019s sailings, so leaving is pointless. The operator says it is false. Left alone it will hollow out your warning.',
+    'Word on the isles is that the last ferry has already gone and anyone still ashore is staying. The operator denies it flatly. If islanders believe it, your warning means nothing.',
+    'The harbour rumour tonight: sailings are finished until the storm clears. They are not \u2014 the operator confirms tomorrow\u2019s timetable holds for now. But people act on what they hear at the quay.']),
+   acts:[{label:'Correct it with the operator',fn:()=>{G.trust.northisles=clamp(G.trust.northisles+0.04,0,1);bump({community:.04,media:.03});handleRumour('isles_ferry','corrected with operator');toast('Joint correction issued \u2014 the warning holds');}},
+        {label:'Let it lie',fn:()=>{G.trust.northisles=clamp(G.trust.northisles-0.05,0,1);handleRumour('isles_ferry','ignored');toast('Uncorrected \u2014 islanders act on the rumour, not the warning');}}]});
  // school-closure rumour ahead of any decision
  if(ph===3&&maxDangerProb(E,'vale')>0.25&&!G.taken.schools)
-  cards.push({who:'Parents\u2019 groups',txt:'Word is spreading that schools will close tomorrow. No such decision has been made. Either make the call or correct the record; a vacuum gets filled.',tone:'pol',rumour:true});
+  cards.push({rid:'schools',who:'Parents\u2019 groups',tone:'pol',rumour:true,
+   txt:vary('schools',[ 'Word is spreading that schools will close tomorrow. No such decision has been made. Either make the call or correct the record; a vacuum gets filled.',
+    'Three school WhatsApp groups are now "confirming" closures you have not ordered. Heads are phoning the department. The record needs correcting, or the decision needs making.',
+    'Parents are keeping children home tomorrow on the strength of a closure announcement that does not exist. Whatever you decide about schools, the public version of it is currently being written by someone else.']),
+   acts:[{label:'Correct the record \u2014 no decision yet',fn:()=>{G.trust.vale=clamp(G.trust.vale+0.02,0,1);bump({media:.03});handleRumour('schools','corrected');toast('Record corrected \u2014 the decision stays yours');}},
+        {label:'Say nothing',fn:()=>{G.trust.vale=clamp(G.trust.vale-0.03,0,1);handleRumour('schools','ignored');toast('Unanswered \u2014 the rumour becomes the announcement');}}]});
  // port authority — closing after the wind arrives is not a plan
  if(E.probs.westshore.sev>0.4&&!G.taken.port&&ph>=3)
   cards.push({who:'Port authority',txt:'Crane derating starts at gale force. If we close after the wind has arrived, we are writing an accident report.',tone:'warn'});
  // care-home federation — a warning is not a wheelchair
  if(warnLv('vale')>=2&&G.warnings.vale.msg&&LEAVING.includes(G.warnings.vale.msg.action)&&feasibility(G.warnings.vale.msg,'vale')<0.7)
-  cards.push({who:'Care-home federation',txt:'Thirty-seven residents across our floodplain homes need transport and a destination. A warning is not a wheelchair. Where do you want them, and how do they get there?',tone:'urgent'});
+  cards.push({who:'Care-home federation',tone:'urgent',txt:vary('care',[ 'Thirty-seven residents across our floodplain homes need transport and a destination. A warning is not a wheelchair. Where do you want them, and how do they get there?',
+   'Your warning says leave. Our residents cannot walk to safety, and the minibuses are not ours to command. Either the transport plan exists or the warning does not apply to them.',
+   'Moving frail residents takes staff, vehicles and a receiving facility \u2014 none of which appear when a warning is published. What is the plan for the people who cannot self-evacuate?'])});
  // supermarket logistics — panic buying under a broad Red
  {const redReg=REGIONS.find(rg=>warnLv(rg.id)>=3&&ext(rg.id)==='region');
   if(redReg)cards.push({who:'Supermarket logistics',txt:`Panic-buying has started in ${redReg.name}. If the Red holds, say what people actually need to do; vague danger empties shelves faster than floods do.`,tone:'pol'});}
@@ -1667,9 +1719,15 @@ function renderIncoming(E){
  /* urgent traffic and rumours surface first; the feed only shows three cards */
  const PRI={urgent:0,warn:2,pol:3,info:4,calm:5};
  cards.sort((a,b)=>((a.rumour?1:PRI[a.tone])-(b.rumour?1:PRI[b.tone])));
- el.innerHTML=`<div class="inc-t">Incoming · operations desk</div>`+cards.slice(0,3).map(c=>`<div class="inc-card" style="border-left-color:${TONE[c.tone]}"><span class="inc-who">${c.who}</span><span class="inc-txt">${c.txt}</span></div>`).join('');
+ G._rumourCards={};cards.forEach(c=>{if(c.rid)G._rumourCards[c.rid]=c;});
+ const handled=c=>c.rid&&G.rumourLog&&G.rumourLog[c.rid];
+ el.innerHTML=`<div class="inc-t">Incoming · operations desk</div>`+cards.slice(0,3).map(c=>{
+  const done=handled(c);
+  const tail=done?`<span class="inc-who" style="color:var(--green)">\u2713 ${G.rumourLog[c.rid]}</span>`:(c.rid?`<span class="inc-who" style="color:var(--amber)">tap to decide \u25b8</span>`:'');
+  const click=(c.rid&&!done)?` style="border-left-color:${TONE[c.tone]};cursor:pointer" onclick="reopenRumour('${c.rid}')"`:` style="border-left-color:${TONE[c.tone]}"`;
+  return `<div class="inc-card"${click}><span class="inc-who">${c.who}</span><span class="inc-txt">${c.txt}</span>${tail}</div>`;}).join('');
  /* urgent traffic and rumours interrupt the desk as modal dialogues — they were getting lost in the feed */
- queueAlerts(cards.filter(c=>c.tone==='urgent'||c.rumour));
+ queueAlerts(cards.filter(c=>(c.tone==='urgent'||c.rumour)&&!handled(c)));
 }
 /* ===================== modal desk alerts ===================== */
 let ALERTQ=[];
@@ -1686,10 +1744,22 @@ function showNextAlert(){
  if(!c){w.classList.remove('open');return;}
  const col=c.tone==='urgent'?'var(--red)':c.rumour?'var(--amber)':'var(--brand)';
  const box=document.getElementById('alertBox');
- if(box)box.innerHTML=`<div class="al-eyebrow" style="color:${col}">${c.tone==='urgent'?'\u26a0 Urgent \u00b7 incoming':c.rumour?'UNVERIFIED \u00b7 rumour reaching the desk':'Incoming \u00b7 needs a line'}</div><div class="al-who">${c.who}</div><div class="al-txt">${c.txt}</div><div class="al-foot"><button class="cta" onclick="dismissAlert()">Acknowledge \u25b8</button></div>`;
+ /* dialogues with stakes carry their choices: the decision is made here, not hunted for elsewhere */
+ const btns=(c.acts&&c.acts.length)
+  ? c.acts.map((a,i)=>`<button class="cta" onclick="alertAction(${i})">${a.label}</button>`).join('')+`<button class="cta" style="opacity:.65" onclick="dismissAlert()">Decide later \u25b8</button>`
+  : `<button class="cta" onclick="dismissAlert()">Acknowledge \u25b8</button>`;
+ if(box)box.innerHTML=`<div class="al-eyebrow" style="color:${col}">${c.tone==='urgent'?'\u26a0 Urgent \u00b7 incoming':c.rumour?'UNVERIFIED \u00b7 rumour reaching the desk':'Incoming \u00b7 needs a line'}</div><div class="al-who">${c.who}</div><div class="al-txt">${c.txt}</div><div class="al-foot" style="display:flex;flex-wrap:wrap;gap:8px">${btns}</div>`;
  w.classList.add('open');
 }
+function alertAction(i){const c=ALERTQ[0];try{if(c&&c.acts&&c.acts[i]&&c.acts[i].fn)c.acts[i].fn();}catch(e){}dismissAlert();}
 function dismissAlert(){ALERTQ.shift();showNextAlert();}
+/* rumour handling from dialogue boxes: consequences flow through trust and readiness, the same
+   levers everything else uses, so a mishandled rumour genuinely hollows out the warning */
+function handleRumour(rid,label,fx){if(!G.rumourLog)G.rumourLog={};G.rumourLog[rid]=label;if(fx)fx();if(typeof renderRes==='function')renderRes();if(G._E)renderIncoming(G._E);}
+function reopenRumour(rid){if(G.rumourLog&&G.rumourLog[rid])return;const c=G._rumourCards&&G._rumourCards[rid];if(!c)return;ALERTQ.push(c);if(ALERTQ.length===1)showNextAlert();}
+/* seeded text variety: stable within a run, different across runs */
+function vstr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function vary(key,arr){const h=((vstr(key)^(G?G.seed:0))>>>0)%arr.length;return arr[h];}
 /* voices: tensions and constraints, never "best action". this is the warning room talking, not the dashboard. */
 function renderVoices(E){
  const el=document.getElementById('voices');if(!el)return;
@@ -1900,10 +1970,10 @@ function publishMsg(){G.warnings[COMP.rid].msg=JSON.parse(JSON.stringify(COMP.dr
 function actionCostNow(a){const disc=G.taken.brief?0.85:1;const em=isEmergencyNow(a);
  return {b:Math.round(a.cost.b*disc*(em?1.4:1)),p:a.cost.p+(em?2:0),a:a.cost.a,em};}
 function affordable(a){const c=actionCostNow(a);return G.res.budget>=c.b&&G.res.polcap>=c.p;}
-const ACT_CAT={outlook:'prep',brief:'prep',pumps_vale:'life',pumps_grey:'life',drawdown:'life',shelters:'life',hospital:'life',ferry:'life',evac:'life',crews:'infra',port:'infra',rail:'disrupt',schools:'disrupt',vehicles:'disrupt',presser:'comms'};
+const ACT_CAT={outlook:'prep',brief:'prep',pumps_vale:'life',pumps_grey:'life',drawdown:'life',shelters:'life',hospital:'life',ferry:'life',evac:'life',east_health:'life',crews:'infra',port:'infra',rail:'disrupt',schools:'disrupt',vehicles:'disrupt',east_dust:'disrupt',presser:'comms'};
 /* from T-96 onward actions are grouped by the region they protect — that is how a desk thinks */
-const ACT_REGION={outlook:'national',brief:'national',presser:'national',pumps_vale:'vale',drawdown:'vale',hospital:'vale',shelters:'vale',schools:'vale',rail:'vale',evac:'vale',crews:'westshore',port:'westshore',vehicles:'westshore',pumps_grey:'greyspine',ferry:'northisles'};
-const ACT_REGION_GROUPS=[['national','National & cross-cutting'],['westshore','Westshore'],['greyspine','Greyspine Mtns'],['vale','Vale Corridor'],['northisles','North Isles']];
+const ACT_REGION={outlook:'national',brief:'national',presser:'national',pumps_vale:'vale',drawdown:'vale',hospital:'vale',shelters:'vale',schools:'vale',rail:'vale',evac:'vale',crews:'westshore',port:'westshore',vehicles:'westshore',pumps_grey:'greyspine',ferry:'northisles',east_dust:'eastmarch',east_health:'eastmarch'};
+const ACT_REGION_GROUPS=[['national','National & cross-cutting'],['westshore','Westshore'],['greyspine','Greyspine Mtns'],['vale','Vale Corridor'],['northisles','North Isles'],['eastmarch','Eastmarch']];
 /* Emergency activation: an escalated warning (Red, or Amber+ carrying a leave/evacuate message) on
    the region an action protects pulls that action's availability one briefing forward, at a 40%
    budget surcharge and extra political cost. The warning is the commitment; the system responds. */
@@ -2018,7 +2088,10 @@ function renderObs(E){
   let rbtns=rdone?`<div class="obsact"><button class="done">\u2713 handled: ${rdone}</button></div>`:`<div class="obsact"><button onclick="obsAction('rumour_verify')">Verify with field teams</button><button onclick="obsAction('rumour_correct')">Publicly correct</button><button onclick="obsAction('rumour_ignore')">Ignore</button></div>`;
   let reveal=(rdone==='verified')?` <span style="color:${supported?'var(--red)':'var(--faint)'}">Field check: ${supported?'partly supported \u2014 act on it':'no evidence \u2014 false report'}.</span>`:'';
   G._rumour={supported,text:rdef.t};
-  if(!rdone)queueAlerts([{who:'Social media',txt:`Reports circulating that ${rdef.t}. Unconfirmed, and no official observation supports it yet. Decide how to handle it at the observations desk: verify, publicly correct, or ignore.`,tone:'warn',rumour:true}]);
+  if(!rdone)queueAlerts([{who:'Social media',txt:`Reports circulating that ${rdef.t}. Unconfirmed, and no official observation supports it yet. You can handle it now, or from the observations desk.`,tone:'warn',rumour:true,
+   acts:[{label:'Verify with field teams',fn:()=>obsAction('rumour_verify')},
+        {label:'Publicly correct',fn:()=>obsAction('rumour_correct')},
+        {label:'Ignore',fn:()=>obsAction('rumour_ignore')}]}]);
   rumour=`<div class="obscard" style="grid-column:1/-1"><div class="on"><span>Social media</span><span>UNVERIFIED</span></div><div class="of rumour">Reports that ${rdef.t} \u2014 <b>unconfirmed</b>; no official observation supports this yet.${reveal}</div>${rbtns}</div>`;
  } else {G._rumour=null;}
  el.style.display='block';
@@ -2060,13 +2133,50 @@ function _plume(E,cfg){
  ctx.strokeStyle='#cfe6f2';ctx.lineWidth=2;ctx.beginPath();
  for(let t=now;t<=tEnd;t+=4){const rise=sstep(t,now,4);const v=curLevel+(medPk-curLevel)*rise;if(t===now)ctx.moveTo(xOf(t),yOf(v));else ctx.lineTo(xOf(t),yOf(v));}ctx.stroke();
 }
+/* The featured diagnostic: one plume, chosen each briefing from whichever driver currently carries the
+   most impact salience, so the forecast desk follows the event (Greyspine flash, an isles isolation,
+   an Eastmarch wake...) instead of hard-coding attention to Vale + Westshore. The runner-up sits
+   behind a "second diagnostic" toggle. All candidates are the same 50 members, presented differently. */
+const PLUME_DIAGS=[
+ {id:'vale_river',label:'VALE CORRIDOR — River Aven peak level (m)',score:E=>E.probs.vale.byImpact.homes||0,
+  cfg:{base:2.0,max:10,unit:'m',scale:6.3,obs0:0.3,jit:0.12,seedXor:0xABCD,driver:m=>m.D.vale.riverLevel,
+   thresholds:[[4,'#2c4a39','#5da57e'],[6,'#5a4a26','#c6a955'],[8,'#5a2c28','#d06a64']]}},
+ {id:'vale_surface',label:'VALE CORRIDOR — surface-water route-loss index',score:E=>E.probs.vale.byImpact.evacroute||0,
+  cfg:{base:0,max:1.5,unit:'',scale:1,obs0:0.05,jit:0.045,seedXor:0xB1F2,driver:m=>m.D.vale.urbanSW,
+   thresholds:[[0.55,'#2c4a39','#5da57e'],[0.85,'#5a4a26','#c6a955'],[1.15,'#5a2c28','#d06a64']]}},
+ {id:'west_surge',label:'WESTSHORE — storm surge height (m) · next tides',score:E=>E.probs.westshore.byImpact.homes||0,
+  cfg:{base:0.3,max:4.6,unit:'m',scale:2.9,obs0:0.1,jit:0.07,seedXor:0x5E4A,driver:m=>m.D.westshore.surge,
+   thresholds:[[1.5,'#2c4a39','#5da57e'],[2.5,'#5a4a26','#c6a955'],[3.5,'#5a2c28','#d06a64']]}},
+ {id:'west_gust',label:'WESTSHORE — peak gust (kt)',score:E=>E.probs.westshore.byImpact.gusts||0,
+  cfg:{base:15,max:120,unit:'kt',scale:75,obs0:6,jit:3,seedXor:0x6057,driver:m=>m.D.westshore.gust,
+   thresholds:[[50,'#2c4a39','#5da57e'],[70,'#5a4a26','#c6a955'],[90,'#5a2c28','#d06a64']]}},
+ {id:'grey_flash',label:'GREYSPINE — flash-flood rainfall index',score:E=>Math.max(E.probs.greyspine.byImpact.flash||0,E.probs.greyspine.byImpact.fatal||0),
+  cfg:{base:0,max:1.5,unit:'',scale:1,obs0:0.05,jit:0.05,seedXor:0x6F1A,driver:m=>m.D.greyspine.rain1h,
+   thresholds:[[0.45,'#2c4a39','#5da57e'],[0.65,'#5a4a26','#c6a955'],[0.95,'#5a2c28','#d06a64']]}},
+ {id:'north_wave',label:'NORTH ISLES — wave / isolation index',score:E=>E.probs.northisles.byImpact.isolation||0,
+  cfg:{base:0,max:1.5,unit:'',scale:1,obs0:0.05,jit:0.05,seedXor:0x901E,driver:m=>m.D.northisles.wave,
+   thresholds:[[0.40,'#2c4a39','#5da57e'],[0.70,'#5a4a26','#c6a955'],[1.00,'#5a2c28','#d06a64']]}},
+ {id:'east_dust',label:'EASTMARCH — lee-wind / dust index',score:E=>Math.max(E.probs.eastmarch.byImpact.dust||0,E.probs.eastmarch.byImpact.power||0),
+  cfg:{base:0,max:1.5,unit:'',scale:1,obs0:0.03,jit:0.05,seedXor:0xEA57,driver:m=>m.D.eastmarch.wake,
+   thresholds:[[0.50,'#2c4a39','#5da57e'],[0.70,'#5a4a26','#c6a955'],[1.00,'#5a2c28','#d06a64']]}},
+];
+function featuredDiagnostics(E){return [...PLUME_DIAGS].sort((a,b)=>b.score(E)-a.score(E));}
 function drawPlume(E){
- _plume(E,{id:'plume',base:2.0,max:10,unit:'m',scale:6.3,obs0:0.3,jit:0.12,seedXor:0xABCD,
-  driver:m=>m.D.vale.riverLevel,
-  thresholds:[[4,'#2c4a39','#5da57e'],[6,'#5a4a26','#c6a955'],[8,'#5a2c28','#d06a64']],memberStroke:'rgba(91,176,212,0.16)'});
- _plume(E,{id:'plumeSurge',base:0.3,max:4.6,unit:'m',scale:2.9,obs0:0.1,jit:0.07,seedXor:0x5E4A,
-  driver:m=>m.D.westshore.surge,
-  thresholds:[[1.5,'#2c4a39','#5da57e'],[2.5,'#5a4a26','#c6a955'],[3.5,'#5a2c28','#d06a64']],memberStroke:'rgba(122,196,164,0.16)'});
+ const sel=featuredDiagnostics(E);const c0=sel[0],c1=sel[1];G._plumeSel=sel;
+ const l0=document.getElementById('plumeLbl');if(l0)l0.textContent=c0.label+' \u00b7 50-member plume \u00b7 featured: highest current impact salience';
+ _plume(E,Object.assign({id:'plume',memberStroke:'rgba(91,176,212,0.16)'},c0.cfg));
+ const extra=document.getElementById('plumeExtra');
+ if(extra&&extra.style.display!=='none'){
+  const l1=document.getElementById('plumeLbl2');if(l1)l1.textContent=c1.label+' \u00b7 same 50 members';
+  _plume(E,Object.assign({id:'plume2',h:150,memberStroke:'rgba(122,196,164,0.16)'},c1.cfg));
+ }
+}
+function togglePlumes(){
+ const extra=document.getElementById('plumeExtra');const btn=document.getElementById('plumeToggle');if(!extra)return;
+ const open=extra.style.display!=='none';
+ extra.style.display=open?'none':'block';
+ if(btn)btn.textContent=open?'show second diagnostic \u25b8':'hide second diagnostic \u25b4';
+ if(!open&&G&&G._E)drawPlume(G._E);
 }
 
 /* ===================== advance / resolve ===================== */
@@ -2078,7 +2188,11 @@ function advance(){
  REGIONS.forEach(rg=>{const w=G.warnings[rg.id];const resp=responseAt(w.level,w.extent,w.msg,rg.id,G.trust[rg.id],G.res.attention,G.phase,!!G.taken.presser);
   G.warnHistory[rg.id].push({phase:G.phase,level:w.level,extent:w.extent,hasMsg:!!w.msg,msg:w.msg?JSON.parse(JSON.stringify(w.msg)):null,resp});
   const wg=readinessFromWarning(rg.id,w);Object.keys(wg).forEach(a=>{if(G.readiness[a]!=null)G.readiness[a]=clamp(G.readiness[a]+wg[a],0,1);});});
- G.log.push({phase:G.phase,t:PHASES[G.phase].t,probs:JSON.parse(JSON.stringify(E.probs)),warnings:JSON.parse(JSON.stringify(G.warnings)),takenThisPhase:Object.keys(G.taken).filter(a=>G.taken[a].phase===G.phase),evByAction});
+ /* "available" = on its normal schedule, OR emergency-unlocked, OR actually taken this phase
+    (earlyUnlock returns false once committed, so the taken-this-phase clause keeps a committed
+     emergency action visible to the decision-quality grader) */
+ const availableActionIds=ACTIONS.filter(a=>a.ph.includes(G.phase)||earlyUnlock(a)||(G.taken[a.id]&&G.taken[a.id].phase===G.phase)).map(a=>a.id);
+ G.log.push({phase:G.phase,t:PHASES[G.phase].t,probs:JSON.parse(JSON.stringify(E.probs)),warnings:JSON.parse(JSON.stringify(G.warnings)),takenThisPhase:Object.keys(G.taken).filter(a=>G.taken[a].phase===G.phase),availableActionIds,evByAction});
  const burden=warningBurden();
  G.res.budget=Math.max(0,G.res.budget-burden.b);G.res.polcap=Math.max(0,G.res.polcap-burden.p);G.res.attention=clamp(G.res.attention+burden.a,0,100);
  G.burdenSpent.b+=burden.b;G.burdenSpent.p+=burden.p;G.burdenSpent.a+=burden.a;
@@ -2181,19 +2295,22 @@ function achievements(R){
 }
 function evaluateDecisions(){
  const items=[];
- G.log.forEach(entry=>{ACTIONS.forEach(a=>{if(!a.ph.includes(entry.phase)||a.flat||!a.trigger)return;
-  const isLast=a.ph[a.ph.length-1]===entry.phase;const took=G.taken[a.id]&&G.taken[a.id].phase===entry.phase;
+ G.log.forEach(entry=>{ACTIONS.forEach(a=>{if(a.flat||!a.trigger)return;
+  const available=entry.availableActionIds?entry.availableActionIds.includes(a.id):a.ph.includes(entry.phase);
+  if(!available)return;
+  const took=G.taken[a.id]&&G.taken[a.id].phase===entry.phase;
+  const isLast=a.ph[a.ph.length-1]===entry.phase||entry.phase===PHASES.length-1;
   if(!took&&!isLast)return;if(G.taken[a.id]&&G.taken[a.id].phase!==entry.phase&&!took)return;
   const r=entry.evByAction[a.id]||{ev:0,cost:0};const p=trigProb(entry.probs,a.trigger);const ev=r.ev,cost=r.cost||0,benefit=ev+cost;
   const clearGood=ev>EV_DEADBAND,clearBad=ev<-EV_DEADBAND;let verdict;
   if(!clearGood&&!clearBad)verdict='good';else if(took&&clearGood)verdict='good';else if(!took&&clearBad)verdict='good';else if(took&&clearBad)verdict='over';else verdict='under';
-  items.push({phase:entry.phase,t:entry.t,name:a.name,p,ev,benefit,cost,took,verdict,trigger:a.trigger});});});
+  items.push({phase:entry.phase,t:entry.t,name:a.name,p,ev,benefit,cost,took,verdict,trigger:a.trigger,emergency:!!(took&&G.taken[a.id].emergency)});});});
  const good=items.filter(i=>i.verdict==='good').length;const ratio=good/(items.length||1);
  const grade=ratio>=0.85?'A':ratio>=0.72?'B':ratio>=0.58?'C':ratio>=0.42?'D':'F';
  return {items,ratio,grade};
 }
 function findMissed(){const cands=[];
- ACTIONS.forEach(a=>{if(a.flat||!a.trigger)return;for(const e of G.log){if(!a.ph.includes(e.phase))continue;const r=e.evByAction[a.id]||{ev:0,cost:0};const p=trigProb(e.probs,a.trigger);const ev=r.ev,cost=r.cost||0,benefit=ev+cost;
+ ACTIONS.forEach(a=>{if(a.flat||!a.trigger)return;for(const e of G.log){const avail=e.availableActionIds?e.availableActionIds.includes(a.id):a.ph.includes(e.phase);if(!avail)continue;const r=e.evByAction[a.id]||{ev:0,cost:0};const p=trigProb(e.probs,a.trigger);const ev=r.ev,cost=r.cost||0,benefit=ev+cost;
   if(ev>8){const tk=G.taken[a.id];const takenPhase=tk?tk.phase:null;if(takenPhase===null||takenPhase>e.phase)cands.push({a,t:PHASES[e.phase].t,p,ev,benefit,cost,takenPhase});break;}}});
  cands.sort((x,y)=>y.ev-x.ev);return cands[0]||null;
 }
@@ -2281,17 +2398,21 @@ function scoreForecastDiagnosis(R){
  const rows=reals.map(rg=>{const o=R.regionOut[rg.id];const peak=Math.max(0,...G.warnHistory[rg.id].map(h=>h.level));return {sev:o.sev,peak};});
  let conc=0,disc=0;for(let i=0;i<rows.length;i++)for(let j=i+1;j<rows.length;j++){const ds=rows[i].sev-rows[j].sev,dp=rows[i].peak-rows[j].peak;if(Math.abs(ds)<0.12)continue;if(ds*dp>0)conc++;else if(ds*dp<0)disc++;}
  const prioritisation=(conc+disc)?conc/(conc+disc):1;
- /* 2. decoy avoidance: the eastmarch heat region is a low-relevance distractor */
- const decoy=RMAP.eastmarch?Math.max(0,...G.warnHistory.eastmarch.map(h=>h.level)):0;
- const decoyAvoid=decoy>=2?0:decoy===1?0.6:1;
+ /* 2. decoy discipline: Eastmarch is a distractor ONLY when its wake hazard does not verify.
+       A correct Amber/Red on a realised Eastmarch wake event is rewarded, not punished. */
+ const eastPeak=RMAP.eastmarch?Math.max(0,...G.warnHistory.eastmarch.map(h=>h.level)):0;
+ const eastSev=R.regionOut.eastmarch?R.regionOut.eastmarch.sev:0;
+ const eastFalseFocus=eastPeak>=2&&eastSev<0.30;
+ const decoyAvoid=eastFalseFocus?0:(eastPeak===1&&eastSev<0.20)?0.7:1;
  /* 3. tail awareness: where danger-to-life actually verified, was it at least Amber? */
  const tailRegs=reals.filter(rg=>R.regionOut[rg.id].sev>0.62);
  const tailAware=tailRegs.length?tailRegs.filter(rg=>Math.max(0,...G.warnHistory[rg.id].map(h=>h.level))>=2).length/tailRegs.length:1;
- const pct=Math.round(100*(0.4*prioritisation+0.25*decoyAvoid+0.35*tailAware));
+ const pct=Math.round(100*(0.45*prioritisation+0.20*decoyAvoid+0.35*tailAware));
  let note;
  if(tailAware<0.999&&tailRegs.length)note=`A danger-to-life region (${tailRegs.find(rg=>Math.max(0,...G.warnHistory[rg.id].map(h=>h.level))<2).name}) was never read as a serious threat — the dominant hazard pathway was missed.`;
- else if(decoy>=2)note=`Effort went to Eastmarch, a heat/drought decoy that was never the storm's exposure — a misread of where the risk actually was.`;
+ else if(eastFalseFocus)note=`Eastmarch was warned strongly despite low realised lee-wind/dust risk — effort went to a hazard that never verified.`;
  else if(prioritisation<0.6)note=`Warning emphasis didn't track where impacts landed — the severity ranking across regions was read out of order.`;
+ else if(eastPeak>=2&&eastSev>=0.30)note=`Eastmarch was correctly recognised as the wake/dust hazard, and the regions that mattered were read in the right order.`;
  else note=`The hazard pathway and the regions that mattered were read correctly, decoy included.`;
  return {pct,grade:gradeOf(pct),note,parts:{prioritisation,decoyAvoid,tailAware}};
 }
@@ -2359,10 +2480,12 @@ function renderDebrief(R){
    <p>The low took <b>${trackName(G.truth.track)}</b> (strength ${G.truth.inten.toFixed(2)}, soil saturation ${(G.truth.sat*100|0)}%, ${G.truth.conv>0.6?'convective/flashy':G.truth.conv<0.4?'prolonged/stratiform':'mixed'} rainfall, ${G.truth.tide>0.6?'surge near high tide':'surge off high tide'}). Forecast pathology: <b>${pathLine}</b>. Seed <b class="mono" style="cursor:pointer" onclick="startGame(${G.seed})" title="replay this storm">#${G.seed.toString(16).toUpperCase()}</b> — click to replay.</p></div>
  ${(()=>{const sc=R.scores;const card=(s,title,sub)=>{const col=s.grade==='A'||s.grade==='B'?'var(--green)':s.grade==='C'?'var(--yellow)':'var(--red)';return `<div class="skillcard"><div class="sk-hd"><span class="sk-title">${title}</span><span class="sk-grade" style="color:${col}">${s.grade}</span></div><div class="sk-sub">${sub}</div><div class="sk-bar"><i style="width:${s.pct}%;background:${col}"></i></div><div class="sk-note">${s.note}</div></div>`;};return `<div class="section-title">Three kinds of skill <span>you can read the weather well and still warn badly — or warn well and have the response fail</span></div><div class="skillgrid">${card(sc.forecast,'Forecast diagnosis','Did you read the hazard pathway, the tail, and the decoy?')}${card(sc.warning,'Warning decision','Was the level defensible, clear, and coherent over time?')}${card(sc.response,'Response chain','Could people actually act — readiness, equity, infrastructure?')}</div>`;})()}
  ${(()=>{const sc=R.scores;const bs=(G.truth.arch==='blackswan');
-   /* black-swan runs are scored as triage: the response chain dominates, because covering every
-      base was impossible by design (see field manual). */
-   const score=bs?Math.round(0.20*sc.forecast.pct+0.25*sc.warning.pct+0.55*sc.response.pct)
-               :Math.round(0.35*sc.forecast.pct+0.30*sc.warning.pct+0.35*sc.response.pct);
+   /* the headline score now includes decision quality (action-EV efficiency), so a run cannot buy a
+      medal with unlimited spend; black-swan runs are still scored as triage with the response chain
+      dominant, because covering every base was impossible by design (see field manual). */
+   const dqPct=Math.round(100*R.dq.ratio);
+   const score=bs?Math.round(0.15*sc.forecast.pct+0.20*sc.warning.pct+0.45*sc.response.pct+0.20*dqPct)
+               :Math.round(0.25*sc.forecast.pct+0.25*sc.warning.pct+0.25*sc.response.pct+0.25*dqPct);
    const tier=score>=88?{n:'Gold — Chief of Service',c:'#e6c24c'}:score>=74?{n:'Silver — Senior Duty Officer',c:'#c9d4dc'}:score>=58?{n:'Bronze — Duty Officer',c:'#c98c4c'}:{n:'No commendation this time',c:'var(--faint)'};
    const meta=loadMeta();meta.runs=(meta.runs||0)+1;
    const prevBest=meta.best&&meta.best.score!=null?meta.best.score:null;
@@ -2371,7 +2494,7 @@ function renderDebrief(R){
    let dailyLine='';
    if(G.daily){const ymd=new Date().toISOString().slice(0,10);if(!meta.daily||meta.daily.ymd!==ymd||score>meta.daily.score)meta.daily={ymd,score};dailyLine=` \u00b7 <b>Daily storm</b>, today's best ${meta.daily.score}`;}
    saveMeta(meta);
-   return `<div class="medalrow"><div class="medalscore"><span class="msnum mono" id="runScoreNum" data-score="${score}">${score}</span><span class="mslbl">${bs?'triage score':'run score'}</span></div><div class="medaltier" style="color:${tier.c}">${tier.n}</div><div class="medalmeta">${isPB&&prevBest!=null?'<b style="color:var(--green)">New personal best</b>':prevBest!=null?'personal best '+prevBest:''} \u00b7 run ${meta.runs}${dailyLine}</div><div class="medalcap">${bs?'Overwhelming event: scored on prioritisation and protecting the response chain, not on total loss. You were not expected to save everything; you were expected to choose what mattered most.':'The medal is the headline. The three skill cards above are the learning.'}</div></div>`;})()}
+   return `<div class="medalrow"><div class="medalscore"><span class="msnum mono" id="runScoreNum" data-score="${score}">${score}</span><span class="mslbl">${bs?'triage score':'run score'}</span></div><div class="medaltier" style="color:${tier.c}">${tier.n}</div><div class="medalmeta">${isPB&&prevBest!=null?'<b style="color:var(--green)">New personal best</b>':prevBest!=null?'personal best '+prevBest:''} \u00b7 run ${meta.runs}${dailyLine}</div><div class="medalcap">${bs?'Overwhelming event: scored on prioritisation and protecting the response chain, not on total loss. You were not expected to save everything; you were expected to choose what mattered most.':'The medal is the headline — three skills plus decision efficiency, so spend has to earn its keep. The skill cards above are the learning.'}</div></div>`;})()}
  ${(()=>{const sal=R.salience;if(!sal)return '';const ll=sal.lossLeader,cl=sal.chainLeader;
    let line;
    if(cl&&ll&&cl.rg.id!==ll.rg.id)line=`National loss was dominated by <b>${ll.rg.name}</b>, but the worst warning-chain failure was <b>${cl.rg.name}</b> — ${sal.reason}. The small-exposure regions (Greyspine, North Isles, Eastmarch) rarely top the national \u00a3 figure, yet they can still produce the event\u2019s worst per-capita catastrophe, isolation, or equity failure.`;
@@ -2419,7 +2542,7 @@ function renderDebrief(R){
     else if(it.verdict==='good'&&!it.took){line=`Held back on “${it.name}” at <b>${Math.round(it.p*100)}%</b>. At that likelihood the £${it.benefit.toFixed(0)}m benefit didn\u2019t justify the £${it.cost.toFixed(0)}m cost.`;verdict='Right to wait ✓';}
     else if(it.verdict==='over'){line=`Committed <b>${it.name}</b> at only <b>${Math.round(it.p*100)}%</b>, when expected value was negative.`;verdict='Over-committed';}
     else{line=`Skipped <b>${it.name}</b> despite a <b>${Math.round(it.p*100)}%</b> trigger probability. Expected avoided loss (£${it.benefit.toFixed(0)}m) far exceeded the £${it.cost.toFixed(0)}m cost.`;verdict='Missed lead time';}
-    return `<div class="entry ${cls}"><div class="eh">${it.t} · EV ${evtxt}${luck?`<span class="lucktag">${luck}</span>`:''}</div><div class="et">${line}</div><div class="verdict">${verdict}</div></div>`;}).join('')}
+    return `<div class="entry ${cls}"><div class="eh">${it.t} · EV ${evtxt}${it.emergency?'<span class="lucktag" style="color:var(--amber)">\u26a1 emergency activation \u2014 pulled forward by your warning</span>':''}${luck?`<span class="lucktag">${luck}</span>`:''}</div><div class="et">${line}</div><div class="verdict">${verdict}</div></div>`;}).join('')}
    ${R.missed?`<div class="entry ${R.missed.takenPhase===null?'bad':'ok'}"><div class="eh">Biggest missed opportunity</div><div class="et">At <b>${R.missed.t}</b>, ${RMAP[R.missed.a.trigger.r].name} ${RMAP[R.missed.a.trigger.r].impacts.find(x=>x.k===R.missed.a.trigger.k).l.toLowerCase()} probability was already <b>${Math.round(R.missed.p*100)}%</b>. <b>${R.missed.a.name}</b> had expected value <b>+£${R.missed.ev.toFixed(0)}m</b>. ${R.missed.takenPhase===null?'You never took it.':'You waited until '+PHASES[R.missed.takenPhase].t+', cutting its effectiveness.'}</div><div class="verdict">Lead time left on the table</div></div>`:''}
   </div></div>
   <div class="card"><div class="hd"><h3>Public response</h3><span class="meta">accumulated over warning history</span></div><div class="bd">${funnelHTML}
